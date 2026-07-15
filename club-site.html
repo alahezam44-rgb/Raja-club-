@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نادي الرجاء الرياضي سوق أهراس</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0c0c; --bg-panel:#161513; --bg-card:#1a1815;
+    --chalk:#f2ede0; --chalk-dim:#c7c0ac;
+    --gold:#d4af37; --gold-bright:#f0cb63; --gold-dim:#8a7431;
+    --line: rgba(212,175,55,0.18); --danger:#c25c50; --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:radial-gradient(circle at 50% 0%, rgba(212,175,55,0.06), transparent 45%), var(--bg);
+    color:var(--chalk); font-family:'Tajawal', sans-serif; min-height:100vh;}
+  .display{font-family:'Almarai', sans-serif;}
+
+  header{padding:22px 32px; border-bottom:1px solid var(--line); display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between;}
+  .club-id{display:flex; align-items:center; gap:14px;}
+  .crest{width:48px; height:56px; flex-shrink:0;}
+  .crest svg{width:100%; height:100%; display:block;}
+  .club-text{display:flex; flex-direction:column; gap:4px;}
+  .club-name{font-family:'Almarai'; font-weight:800; font-size:22px; background:transparent; border:none; color:var(--gold-bright); border-bottom:2px dashed transparent; padding:2px 0; outline:none; max-width:380px;}
+  .club-name:focus, .club-name:hover{border-bottom-color:var(--gold-dim);}
+  .tagline{font-size:12px; color:var(--chalk-dim); background:transparent; border:none; outline:none; border-bottom:1px dashed transparent; font-family:'Tajawal'; max-width:380px;}
+  .tagline:focus, .tagline:hover{border-bottom-color:var(--gold-dim);}
+
+  nav{display:flex; gap:6px; background:var(--bg-panel); border:1px solid var(--line); border-radius:999px; padding:4px;}
+  nav button{border:none; background:transparent; color:var(--chalk-dim); font-family:'Almarai'; font-weight:700; font-size:13px; padding:9px 20px; border-radius:999px; cursor:pointer;}
+  nav button.active{background:var(--gold); color:#141005;}
+
+  .page{display:none; padding:28px 32px 60px; max-width:1200px; margin:0 auto;}
+  .page.active{display:block;}
+
+  /* ---- HOME PAGE ---- */
+  .hero{text-align:center; padding:50px 20px 40px; border-bottom:1px solid var(--line); margin-bottom:36px;}
+  .hero .crest-big{width:110px; height:128px; margin:0 auto 18px;}
+  .hero .crest-big svg{width:100%; height:100%;}
+  .hero h1{font-family:'Almarai'; font-weight:800; font-size:34px; color:var(--gold-bright); margin:0 0 8px;}
+  .hero p{color:var(--chalk-dim); font-size:15px; margin:0;}
+
+  .section-block{margin-bottom:44px;}
+  .section-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .section-head h2{font-family:'Almarai'; font-size:19px; color:var(--gold-bright); display:flex; align-items:center; gap:9px; margin:0;}
+  .section-head h2::before{content:''; width:4px; height:18px; background:var(--gold); border-radius:2px; display:inline-block;}
+  .add-toggle{background:var(--bg-panel); border:1px solid var(--line); color:var(--gold); padding:7px 16px; border-radius:8px; font-size:12.5px; cursor:pointer; font-family:'Tajawal';}
+  .add-toggle:hover{border-color:var(--gold-dim);}
+
+  .inline-form{background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-bottom:18px; display:none;}
+  .inline-form.show{display:grid; gap:10px;}
+  .inline-form input, .inline-form textarea{width:100%; background:#000; border:1px solid var(--line); color:var(--chalk); border-radius:8px; padding:10px 12px; font-family:'Tajawal'; font-size:14px;}
+  .inline-form textarea{resize:vertical; min-height:70px;}
+  .inline-form .btn-row{display:flex; gap:8px;}
+  .mini-btn{background:linear-gradient(180deg, var(--gold-bright), var(--gold)); color:#141005; border:none; border-radius:8px; padding:9px 18px; font-family:'Almarai'; font-weight:800; font-size:13px; cursor:pointer;}
+
+  .achv-list{list-style:none; margin:0; padding:0; display:grid; gap:10px;}
+  .achv-item{background:var(--bg-card); border:1px solid var(--line); border-radius:10px; padding:13px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .achv-item .txt{display:flex; align-items:center; gap:10px; font-size:14px;}
+  .achv-item .yr{color:var(--gold); font-family:'Almarai'; font-weight:800; font-size:13px; background:rgba(212,175,55,0.1); padding:3px 10px; border-radius:999px;}
+
+  .news-grid{display:grid; gap:14px;}
+  .news-card{background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius); padding:18px;}
+  .news-card .nd{font-size:11px; color:var(--gold-dim); margin-bottom:6px;}
+  .news-card h3{font-family:'Almarai'; font-size:15.5px; margin:0 0 8px; color:var(--chalk);}
+  .news-card p{font-size:13px; color:var(--chalk-dim); line-height:1.8; margin:0;}
+
+  .contact-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px;}
+  .contact-card{background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; text-align:center;}
+  .contact-card .ic{font-size:22px; margin-bottom:8px;}
+  .contact-card .lbl{font-size:11px; color:var(--chalk-dim); margin-bottom:4px;}
+  .contact-card input{width:100%; background:transparent; border:none; color:var(--gold-bright); text-align:center; font-family:'Tajawal'; font-size:13.5px; outline:none; border-bottom:1px dashed transparent;}
+  .contact-card input:focus, .contact-card input:hover{border-bottom-color:var(--gold-dim);}
+
+  .del-x{background:none; border:none; color:var(--chalk-dim); cursor:pointer; font-size:14px;}
+  .del-x:hover{color:var(--danger);}
+
+  /* ---- REGISTRATION PAGE ---- */
+  .reg-layout{display:grid; grid-template-columns:340px 1fr; gap:26px; align-items:start;}
+  @media (max-width: 880px){ .reg-layout{grid-template-columns:1fr;} }
+
+  .panel{background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px;}
+  .panel h2{font-family:'Almarai'; font-size:16px; margin:0 0 16px; display:flex; align-items:center; gap:8px; color:var(--gold-bright);}
+  .panel h2::before{content:''; width:4px; height:16px; background:var(--gold); border-radius:2px; display:inline-block;}
+
+  label{display:block; font-size:12px; color:var(--chalk-dim); margin:12px 0 5px;}
+  label:first-of-type{margin-top:0;}
+  input, select{width:100%; background:#000; border:1px solid var(--line); color:var(--chalk); border-radius:8px; padding:10px 12px; font-family:'Tajawal'; font-size:14px;}
+  input:focus, select:focus{outline:2px solid var(--gold-dim);}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+
+  .photo-upload{display:flex; align-items:center; gap:14px; margin-top:12px;}
+  .photo-preview{width:64px; height:64px; border-radius:50%; border:2px dashed var(--gold-dim); background:#000; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; color:var(--gold-dim); font-size:11px; text-align:center;}
+  .photo-preview img{width:100%; height:100%; object-fit:cover;}
+  .photo-btn{background:var(--bg-card); border:1px solid var(--line); color:var(--gold); padding:8px 14px; border-radius:8px; font-size:12.5px; cursor:pointer;}
+  .photo-btn:hover{border-color:var(--gold-dim);}
+  input[type=file]{display:none;}
+
+  .checkline{display:flex; align-items:center; gap:8px; margin-top:14px; font-size:13px; color:var(--chalk-dim);}
+  .checkline input{width:16px; height:16px; accent-color:var(--gold);}
+
+  .btn{margin-top:18px; width:100%; background:linear-gradient(180deg, var(--gold-bright), var(--gold)); color:#141005; border:none; border-radius:8px; padding:12px; font-family:'Almarai'; font-weight:800; font-size:14px; cursor:pointer;}
+  .btn:hover{filter:brightness(1.08);}
+
+  .toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:18px;}
+  .search{flex:1; min-width:160px;}
+  .chips{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{border:1px solid var(--line); background:var(--bg-panel); color:var(--chalk-dim); padding:6px 14px; border-radius:999px; font-size:12.5px; cursor:pointer; white-space:nowrap;}
+  .chip.active{background:var(--gold); color:#141005; border-color:var(--gold); font-weight:700;}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:16px;}
+  .card{background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius); padding:16px; position:relative; display:flex; gap:14px;}
+  .avatar{flex-shrink:0; width:52px; height:52px; border-radius:50%; border:2px solid var(--gold-dim); display:flex; align-items:center; justify-content:center; font-family:'Almarai'; font-weight:800; font-size:17px; color:var(--gold); overflow:hidden; background:#000;}
+  .avatar img{width:100%; height:100%; object-fit:cover;}
+  .card-body{flex:1; min-width:0;}
+  .card-name{font-family:'Almarai'; font-weight:700; font-size:15.5px; margin-bottom:4px; color:var(--chalk);}
+  .card-meta{font-size:12px; color:var(--chalk-dim); line-height:1.7;}
+  .tag{display:inline-block; font-size:11px; padding:2px 9px; border-radius:999px; margin-top:6px; color:#141005; font-weight:700;}
+  .med-ok{color:#8fbf9a;} .med-no{color:var(--danger);}
+  .del-btn{position:absolute; top:10px; left:10px; background:none; border:none; color:var(--chalk-dim); cursor:pointer; font-size:15px; padding:4px;}
+  .del-btn:hover{color:var(--danger);}
+
+  .empty{text-align:center; padding:60px 20px; color:var(--chalk-dim); border:1px dashed var(--line); border-radius:var(--radius); grid-column:1/-1;}
+  .empty .big{font-size:38px; display:block; margin-bottom:10px;}
+  .stats{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:18px;}
+  .stat{background:var(--bg-panel); border:1px solid var(--line); border-radius:12px; padding:10px 18px; text-align:center; min-width:86px;}
+  .stat .num{font-family:'Almarai'; font-weight:800; font-size:20px; color:var(--gold); display:block;}
+  .stat .lbl{font-size:11px; color:var(--chalk-dim);}
+  ::placeholder{color:#5c5648;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="club-id">
+    <div class="crest">
+      <svg viewBox="0 0 100 116" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 2 L96 22 C96 60 80 96 50 114 C20 96 4 60 4 22 Z" stroke="#d4af37" stroke-width="3" fill="#0c0c0c"/>
+        <path d="M50 10 L89 27 C89 61 75 92 50 108 C25 92 11 61 11 27 Z" stroke="#d4af37" stroke-width="1.5" fill="none"/>
+        <circle cx="50" cy="6" r="2.5" fill="#d4af37"/>
+        <path d="M50 40 C40 40 33 47 33 56 C33 66 40 74 50 78 C60 74 67 66 67 56 C67 47 60 40 50 40 Z" fill="#d4af37" opacity="0.9"/>
+      </svg>
+    </div>
+    <div class="club-text">
+      <input class="club-name display" id="clubName" value="نادي الرجاء الرياضي سوق أهراس" />
+      <input class="tagline" id="clubTagline" value="فخر سوق أهراس منذ التأسيس" />
+    </div>
+  </div>
+  <nav>
+    <button class="active" data-page="home">الرئيسية</button>
+    <button data-page="reg">التسجيل</button>
+  </nav>
+</header>
+
+<!-- ============ HOME PAGE ============ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="crest-big">
+      <svg viewBox="0 0 100 116" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 2 L96 22 C96 60 80 96 50 114 C20 96 4 60 4 22 Z" stroke="#d4af37" stroke-width="3" fill="#0c0c0c"/>
+        <path d="M50 10 L89 27 C89 61 75 92 50 108 C25 92 11 61 11 27 Z" stroke="#d4af37" stroke-width="1.5" fill="none"/>
+        <circle cx="50" cy="6" r="2.5" fill="#d4af37"/>
+        <path d="M50 40 C40 40 33 47 33 56 C33 66 40 74 50 78 C60 74 67 66 67 56 C67 47 60 40 50 40 Z" fill="#d4af37" opacity="0.9"/>
+      </svg>
+    </div>
+    <h1 id="heroName">نادي الرجاء الرياضي سوق أهراس</h1>
+    <p id="heroTag">فخر سوق أهراس منذ التأسيس</p>
+  </div>
+
+  <div class="section-block">
+    <div class="section-head">
+      <h2>إنجازات النادي</h2>
+      <button class="add-toggle" data-toggle="achv-form">+ إضافة إنجاز</button>
+    </div>
+    <div class="inline-form" id="achv-form">
+      <input type="text" id="achv_title" placeholder="عنوان الإنجاز (مثال: بطل الرابطة الجهوية)">
+      <input type="text" id="achv_year" placeholder="السنة (مثال: 2025)">
+      <div class="btn-row"><button class="mini-btn" onclick="addAchievement()">إضافة</button></div>
+    </div>
+    <ul class="achv-list" id="achvList"></ul>
+  </div>
+
+  <div class="section-block">
+    <div class="section-head">
+      <h2>أخبار الفريق</h2>
+      <button class="add-toggle" data-toggle="news-form">+ إضافة خبر</button>
+    </div>
+    <div class="inline-form" id="news-form">
+      <input type="text" id="news_title" placeholder="عنوان الخبر">
+      <textarea id="news_content" placeholder="تفاصيل الخبر..."></textarea>
+      <div class="btn-row"><button class="mini-btn" onclick="addNews()">نشر الخبر</button></div>
+    </div>
+    <div class="news-grid" id="newsGrid"></div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-head"><h2>التواصل مع النادي</h2></div>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="ic">📞</div><div class="lbl">الهاتف</div>
+        <input id="c_phone" placeholder="0555 12 34 56">
+      </div>
+      <div class="contact-card">
+        <div class="ic">✉️</div><div class="lbl">البريد الإلكتروني</div>
+        <input id="c_email" placeholder="contact@club.com">
+      </div>
+      <div class="contact-card">
+        <div class="ic">📍</div><div class="lbl">العنوان</div>
+        <input id="c_address" placeholder="سوق أهراس، الجزائر">
+      </div>
+      <div class="contact-card">
+        <div class="ic">📘</div><div class="lbl">فيسبوك</div>
+        <input id="c_facebook" placeholder="facebook.com/...">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ REGISTRATION PAGE ============ -->
+<div class="page" id="page-reg">
+  <div class="stats" id="statsBar"></div>
+  <div class="reg-layout">
+    <section class="panel">
+      <h2>تسجيل رياضي جديد</h2>
+      <form id="regForm">
+        <label>الصورة الشخصية</label>
+        <div class="photo-upload">
+          <div class="photo-preview" id="photoPreview">بدون صورة</div>
+          <button type="button" class="photo-btn" onclick="document.getElementById('f_photo').click()">اختر صورة</button>
+          <input type="file" id="f_photo" accept="image/*">
+        </div>
+
+        <label>الاسم الكامل</label>
+        <input type="text" id="f_name" placeholder="مثال: ياسين بلقاسمي" required>
+
+        <div class="row2">
+          <div><label>تاريخ الميلاد</label><input type="date" id="f_dob" required></div>
+          <div>
+            <label>الفئة العمرية</label>
+            <select id="f_category">
+              <option>براعم</option><option>أشبال</option><option>أصاغر</option><option>أواسط</option><option>أكابر</option>
+            </select>
+          </div>
+        </div>
+
+        <label>الرياضة</label>
+        <select id="f_sport">
+          <option>كرة القدم</option><option>كرة السلة</option><option>كرة اليد</option><option>الكرة الطائرة</option>
+          <option>ألعاب القوى</option><option>السباحة</option><option>الجودو</option><option>الكاراتيه</option>
+          <option>الملاكمة</option><option>تنس الطاولة</option><option>أخرى</option>
+        </select>
+
+        <label>هاتف الاتصال (اللاعب أو ولي الأمر)</label>
+        <input type="tel" id="f_phone" placeholder="0555 12 34 56">
+
+        <label class="checkline" style="margin-top:16px;">
+          <input type="checkbox" id="f_medical"> الشهادة الطبية متوفرة
+        </label>
+
+        <button type="submit" class="btn">تسجيل الرياضي</button>
+      </form>
+    </section>
+
+    <section>
+      <div class="toolbar">
+        <input class="search" id="searchBox" type="text" placeholder="ابحث بالاسم...">
+        <div class="chips" id="sportChips"></div>
+      </div>
+      <div class="grid" id="rosterGrid"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+const SPORTS = ["كرة القدم","كرة السلة","كرة اليد","الكرة الطائرة","ألعاب القوى","السباحة","الجودو","الكاراتيه","الملاكمة","تنس الطاولة","أخرى"];
+const SPORT_COLORS = {"كرة القدم":"#d4af37","كرة السلة":"#c98a3f","كرة اليد":"#b5675d","الكرة الطائرة":"#8a9bb0","ألعاب القوى":"#e3c05a","السباحة":"#6fa3a6","الجودو":"#a56a63","الكاراتيه":"#9a8ab5","الملاكمة":"#8a7431","تنس الطاولة":"#8fae8f","أخرى":"#9a9385"};
+
+let athletes = [], achievements = [], news = [], contact = {};
+let activeSport = "الكل";
+let pendingPhoto = null;
+
+/* ---------- navigation ---------- */
+document.querySelectorAll('nav button').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+btn.dataset.page).classList.add('active');
+  };
+});
+document.querySelectorAll('.add-toggle').forEach(btn=>{
+  btn.onclick = ()=> document.getElementById(btn.dataset.toggle).classList.toggle('show');
+});
+
+/* ---------- helpers ---------- */
+function toArabicDigits(str){
+  const map = {'0':'٠','1':'١','2':'٢','3':'٣','4':'٤','5':'٥','6':'٦','7':'٧','8':'٨','9':'٩'};
+  return String(str).replace(/[0-9]/g, d => map[d]);
+}
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+function calcAge(dob){
+  if(!dob) return '—';
+  const b=new Date(dob), t=new Date();
+  let age=t.getFullYear()-b.getFullYear();
+  const md=t.getMonth()-b.getMonth();
+  if(md<0||(md===0&&t.getDate()<b.getDate())) age--;
+  return age;
+}
+function initials(name){
+  const parts=name.trim().split(/\s+/);
+  return parts.slice(0,2).map(p=>p[0]).join('');
+}
+
+/* ---------- storage ---------- */
+async function loadAll(){
+  try{ const r=await window.storage.get('athletes',false); athletes = r?JSON.parse(r.value):[]; }catch(e){ athletes=[]; }
+  try{ const r=await window.storage.get('achievements',false); achievements = r?JSON.parse(r.value):[]; }catch(e){ achievements=[]; }
+  try{ const r=await window.storage.get('news',false); news = r?JSON.parse(r.value):[]; }catch(e){ news=[]; }
+  try{ const r=await window.storage.get('contact-info',false); contact = r?JSON.parse(r.value):{}; }catch(e){ contact={}; }
+  try{ const r=await window.storage.get('club-name',false); if(r) document.getElementById('clubName').value=r.value; }catch(e){}
+  try{ const r=await window.storage.get('club-tagline',false); if(r) document.getElementById('clubTagline').value=r.value; }catch(e){}
+
+  document.getElementById('heroName').textContent = document.getElementById('clubName').value;
+  document.getElementById('heroTag').textContent = document.getElementById('clubTagline').value;
+
+  document.getElementById('c_phone').value = contact.phone||'';
+  document.getElementById('c_email').value = contact.email||'';
+  document.getElementById('c_address').value = contact.address||'';
+  document.getElementById('c_facebook').value = contact.facebook||'';
+
+  renderAchievements(); renderNews(); buildChips(); renderRoster();
+}
+async function save(key, value){
+  try{ await window.storage.set(key, typeof value==='string'?value:JSON.stringify(value), false); }
+  catch(e){ console.error('تعذر الحفظ: '+key, e); }
+}
+
+/* ---------- club identity ---------- */
+document.getElementById('clubName').addEventListener('change', e=>{
+  save('club-name', e.target.value);
+  document.getElementById('heroName').textContent = e.target.value;
+});
+document.getElementById('clubTagline').addEventListener('change', e=>{
+  save('club-tagline', e.target.value);
+  document.getElementById('heroTag').textContent = e.target.value;
+});
+
+/* ---------- achievements ---------- */
+function addAchievement(){
+  const title=document.getElementById('achv_title').value.trim();
+  const year=document.getElementById('achv_year').value.trim();
+  if(!title) return;
+  achievements.unshift({id:Date.now(), title, year});
+  save('achievements', achievements);
+  document.getElementById('achv_title').value='';
+  document.getElementById('achv_year').value='';
+  renderAchievements();
+}
+function renderAchievements(){
+  const list=document.getElementById('achvList');
+  if(achievements.length===0){ list.innerHTML='<li class="achv-item" style="justify-content:center;color:var(--chalk-dim)">لا توجد إنجازات مضافة بعد</li>'; return; }
+  list.innerHTML = achievements.map(a=>`
+    <li class="achv-item">
+      <div class="txt">🏆 ${escapeHtml(a.title)} ${a.year?`<span class="yr">${toArabicDigits(a.year)}</span>`:''}</div>
+      <button class="del-x" onclick="delAchievement(${a.id})">✕</button>
+    </li>`).join('');
+}
+function delAchievement(id){ achievements=achievements.filter(a=>a.id!==id); save('achievements',achievements); renderAchievements(); }
+
+/* ---------- news ---------- */
+function addNews(){
+  const title=document.getElementById('news_title').value.trim();
+  const content=document.getElementById('news_content').value.trim();
+  if(!title) return;
+  news.unshift({id:Date.now(), title, content, date:new Date().toISOString()});
+  save('news', news);
+  document.getElementById('news_title').value='';
+  document.getElementById('news_content').value='';
+  renderNews();
+}
+function renderNews(){
+  const grid=document.getElementById('newsGrid');
+  if(news.length===0){ grid.innerHTML='<div class="empty" style="grid-column:1/-1"><span class="big">📰</span>لا توجد أخبار منشورة بعد</div>'; return; }
+  grid.innerHTML = news.map(n=>`
+    <div class="news-card">
+      <div class="nd">${new Date(n.date).toLocaleDateString('ar-DZ')} · <button class="del-x" onclick="delNews(${n.id})" style="margin-inline-start:8px">حذف</button></div>
+      <h3>${escapeHtml(n.title)}</h3>
+      <p>${escapeHtml(n.content)}</p>
+    </div>`).join('');
+}
+function delNews(id){ news=news.filter(n=>n.id!==id); save('news',news); renderNews(); }
+
+/* ---------- contact ---------- */
+['c_phone','c_email','c_address','c_facebook'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', ()=>{
+    contact = {
+      phone: document.getElementById('c_phone').value.trim(),
+      email: document.getElementById('c_email').value.trim(),
+      address: document.getElementById('c_address').value.trim(),
+      facebook: document.getElementById('c_facebook').value.trim()
+    };
+    save('contact-info', contact);
+  });
+});
+
+/* ---------- photo upload (resize to keep storage small) ---------- */
+document.getElementById('f_photo').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const size = 160;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const scale = Math.max(size/img.width, size/img.height);
+      const w = img.width*scale, h = img.height*scale;
+      ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
+      pendingPhoto = canvas.toDataURL('image/jpeg', 0.7);
+      document.getElementById('photoPreview').innerHTML = `<img src="${pendingPhoto}">`;
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+/* ---------- roster ---------- */
+function buildChips(){
+  const wrap=document.getElementById('sportChips');
+  const counts={};
+  athletes.forEach(a=>counts[a.sport]=(counts[a.sport]||0)+1);
+  const chipsData=["الكل", ...SPORTS.filter(s=>counts[s])];
+  wrap.innerHTML="";
+  chipsData.forEach(s=>{
+    const c=document.createElement('div');
+    c.className='chip'+(s===activeSport?' active':'');
+    c.textContent = s==="الكل" ? `الكل (${athletes.length})` : `${s} (${counts[s]})`;
+    c.onclick=()=>{ activeSport=s; buildChips(); renderRoster(); };
+    wrap.appendChild(c);
+  });
+}
+function renderRoster(){
+  const grid=document.getElementById('rosterGrid');
+  const q=document.getElementById('searchBox').value.trim();
+  let list=athletes.filter(a=>a.name.includes(q));
+  if(activeSport!=="الكل") list=list.filter(a=>a.sport===activeSport);
+
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat"><span class="num">${toArabicDigits(athletes.length)}</span><span class="lbl">مسجَّل</span></div>
+    <div class="stat"><span class="num">${toArabicDigits(new Set(athletes.map(a=>a.sport)).size)}</span><span class="lbl">رياضات</span></div>
+    <div class="stat"><span class="num">${toArabicDigits(athletes.filter(a=>a.medical).length)}</span><span class="lbl">شهادة طبية</span></div>`;
+
+  if(list.length===0){ grid.innerHTML='<div class="empty"><span class="big">🛡️</span>لا يوجد رياضيون بعد — ابدأ بتسجيل أول لاعب من النموذج.</div>'; return; }
+
+  grid.innerHTML = list.map(a=>{
+    const color = SPORT_COLORS[a.sport]||'#9a9385';
+    const avatarInner = a.photo ? `<img src="${a.photo}">` : initials(a.name);
+    return `
+    <div class="card">
+      <button class="del-btn" data-id="${a.id}" title="حذف">✕</button>
+      <div class="avatar">${avatarInner}</div>
+      <div class="card-body">
+        <div class="card-name">${escapeHtml(a.name)}</div>
+        <div class="card-meta">
+          العمر: ${toArabicDigits(calcAge(a.dob))} سنة — ${a.category}<br>
+          ${a.phone ? '📞 '+toArabicDigits(a.phone) : 'بدون رقم هاتف'}<br>
+          <span class="${a.medical?'med-ok':'med-no'}">${a.medical?'✓ الشهادة الطبية متوفرة':'⚠ الشهادة الطبية غير متوفرة'}</span>
+        </div>
+        <span class="tag" style="background:${color}">${a.sport}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.del-btn').forEach(btn=>{
+    btn.onclick=()=>{
+      athletes = athletes.filter(a=>String(a.id)!==btn.dataset.id);
+      save('athletes', athletes); buildChips(); renderRoster();
+    };
+  });
+}
+
+document.getElementById('regForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const name=document.getElementById('f_name').value.trim();
+  const dob=document.getElementById('f_dob').value;
+  const category=document.getElementById('f_category').value;
+  const sport=document.getElementById('f_sport').value;
+  const phone=document.getElementById('f_phone').value.trim();
+  const medical=document.getElementById('f_medical').checked;
+  if(!name||!dob) return;
+
+  athletes.push({
+    id: Date.now(), name, dob, category, sport, phone, medical,
+    photo: pendingPhoto || null,
+    registeredAt: new Date().toISOString()
+  });
+  await save('athletes', athletes);
+  e.target.reset();
+  pendingPhoto = null;
+  document.getElementById('photoPreview').innerHTML = 'بدون صورة';
+  buildChips(); renderRoster();
+});
+
+document.getElementById('searchBox').addEventListener('input', renderRoster);
+
+loadAll();
+</script>
+</body>
+</html>
