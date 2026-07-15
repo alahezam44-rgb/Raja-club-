@@ -327,9 +327,38 @@ async function loadState(){
   applyStateToUI();
 }
 
+function mergeById(remoteList, localList){
+  remoteList = Array.isArray(remoteList) ? remoteList : [];
+  localList = Array.isArray(localList) ? localList : [];
+  const byId = new Map();
+  remoteList.forEach(item => byId.set(item.id, item));
+  localList.forEach(item => byId.set(item.id, item)); // local wins on conflict (most recent edit on this device)
+  return Array.from(byId.values()).sort((a,b) => (b.id||0) - (a.id||0));
+}
+
 async function persistState(){
   setSyncStatus('syncing');
   try{
+    // 1) fetch the latest shared copy first, so we don't blindly overwrite
+    // changes made from another device in the meantime.
+    let remote = {};
+    try{
+      const getRes = await fetch(API_URL, {headers:{'Accept':'application/json'}});
+      if(getRes.ok) remote = await getRes.json();
+    }catch(e){ /* if this fails we just proceed with local state only */ }
+
+    // 2) merge list-type data by id (union), local edits take priority on conflict
+    const merged = {
+      clubName: state.clubName,
+      clubTagline: state.clubTagline,
+      contact: state.contact,
+      athletes: mergeById(remote.athletes, state.athletes),
+      achievements: mergeById(remote.achievements, state.achievements),
+      news: mergeById(remote.news, state.news)
+    };
+    state = merged;
+
+    // 3) push the merged result
     const res = await fetch(API_URL, {
       method: 'PUT',
       headers: {'Content-Type':'application/json','Accept':'application/json'},
@@ -337,6 +366,8 @@ async function persistState(){
     });
     if(!res.ok) throw new Error('bad status');
     setSyncStatus('ok');
+    // reflect any merged-in items (e.g. an athlete added from another device) in this view too
+    applyStateToUI();
   }catch(e){
     console.error('تعذر حفظ البيانات المشتركة', e);
     setSyncStatus('err');
