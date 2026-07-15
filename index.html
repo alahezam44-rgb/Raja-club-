@@ -18,6 +18,15 @@
     color:var(--chalk); font-family:'Tajawal', sans-serif; min-height:100vh;}
   .display{font-family:'Almarai', sans-serif;}
 
+  .sync-bar{
+    background:#1c1c1a; border-bottom:1px solid var(--line); padding:8px 32px;
+    font-size:12px; color:var(--chalk-dim); display:flex; align-items:center; gap:8px;
+  }
+  .sync-dot{width:7px; height:7px; border-radius:50%; background:#8fbf9a; flex-shrink:0;}
+  .sync-dot.syncing{background:var(--gold); animation:pulse 1s infinite;}
+  .sync-dot.err{background:var(--danger);}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
   header{padding:22px 32px; border-bottom:1px solid var(--line); display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between;}
   .club-id{display:flex; align-items:center; gap:14px;}
   .crest{width:48px; height:56px; flex-shrink:0;}
@@ -35,7 +44,6 @@
   .page{display:none; padding:28px 32px 60px; max-width:1200px; margin:0 auto;}
   .page.active{display:block;}
 
-  /* ---- HOME PAGE ---- */
   .hero{text-align:center; padding:50px 20px 40px; border-bottom:1px solid var(--line); margin-bottom:36px;}
   .hero .crest-big{width:110px; height:128px; margin:0 auto 18px;}
   .hero .crest-big svg{width:100%; height:100%;}
@@ -77,7 +85,6 @@
   .del-x{background:none; border:none; color:var(--chalk-dim); cursor:pointer; font-size:14px;}
   .del-x:hover{color:var(--danger);}
 
-  /* ---- REGISTRATION PAGE ---- */
   .reg-layout{display:grid; grid-template-columns:340px 1fr; gap:26px; align-items:start;}
   @media (max-width: 880px){ .reg-layout{grid-template-columns:1fr;} }
 
@@ -103,6 +110,7 @@
 
   .btn{margin-top:18px; width:100%; background:linear-gradient(180deg, var(--gold-bright), var(--gold)); color:#141005; border:none; border-radius:8px; padding:12px; font-family:'Almarai'; font-weight:800; font-size:14px; cursor:pointer;}
   .btn:hover{filter:brightness(1.08);}
+  .btn:disabled{opacity:0.6; cursor:not-allowed;}
 
   .toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:18px;}
   .search{flex:1; min-width:160px;}
@@ -133,6 +141,11 @@
 </head>
 <body>
 
+<div class="sync-bar">
+  <span class="sync-dot" id="syncDot"></span>
+  <span id="syncText">متصل بالتخزين المشترك</span>
+</div>
+
 <header>
   <div class="club-id">
     <div class="crest">
@@ -154,7 +167,6 @@
   </nav>
 </header>
 
-<!-- ============ HOME PAGE ============ -->
 <div class="page active" id="page-home">
   <div class="hero">
     <div class="crest-big">
@@ -218,7 +230,6 @@
   </div>
 </div>
 
-<!-- ============ REGISTRATION PAGE ============ -->
 <div class="page" id="page-reg">
   <div class="stats" id="statsBar"></div>
   <div class="reg-layout">
@@ -259,7 +270,7 @@
           <input type="checkbox" id="f_medical"> الشهادة الطبية متوفرة
         </label>
 
-        <button type="submit" class="btn">تسجيل الرياضي</button>
+        <button type="submit" class="btn" id="submitBtn">تسجيل الرياضي</button>
       </form>
     </section>
 
@@ -274,12 +285,80 @@
 </div>
 
 <script>
-const SPORTS = ["كرة القدم","كرة السلة","كرة اليد","الكرة الطائرة","ألعاب القوى","السباحة","الجودو","الكاراتيه","الملاكمة","تنس الطاولة","أخرى"];
-const SPORT_COLORS = {"كرة القدم":"#d4af37","كرة السلة":"#c98a3f","كرة اليد":"#b5675d","الكرة الطائرة":"#8a9bb0","ألعاب القوى":"#e3c05a","السباحة":"#6fa3a6","الجودو":"#a56a63","الكاراتيه":"#9a8ab5","الملاكمة":"#8a7431","تنس الطاولة":"#8fae8f","أخرى":"#9a9385"};
+/* ============ shared cloud storage (jsonblob) ============ */
+const BLOB_ID = "019f6796-8f32-74eb-802d-2c16170e41a0";
+const API_URL = "https://jsonblob.com/api/jsonBlob/" + BLOB_ID;
 
-let athletes = [], achievements = [], news = [], contact = {};
-let activeSport = "الكل";
-let pendingPhoto = null;
+const DEFAULT_STATE = {
+  clubName: "نادي الرجاء الرياضي سوق أهراس",
+  clubTagline: "فخر سوق أهراس منذ التأسيس",
+  athletes: [],
+  achievements: [],
+  news: [],
+  contact: {}
+};
+
+let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+let saveTimer = null;
+
+function setSyncStatus(mode){
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  dot.className = 'sync-dot' + (mode==='syncing' ? ' syncing' : mode==='err' ? ' err' : '');
+  txt.textContent = mode==='syncing' ? 'جارٍ الحفظ...' : mode==='err' ? 'تعذر الاتصال بالتخزين المشترك — تحقق من الإنترنت' : 'متصل بالتخزين المشترك';
+}
+
+async function loadState(){
+  setSyncStatus('syncing');
+  try{
+    const res = await fetch(API_URL, {headers:{'Accept':'application/json'}});
+    if(!res.ok) throw new Error('bad status');
+    const data = await res.json();
+    state = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), data);
+    if(!Array.isArray(state.athletes)) state.athletes = [];
+    if(!Array.isArray(state.achievements)) state.achievements = [];
+    if(!Array.isArray(state.news)) state.news = [];
+    if(!state.contact || typeof state.contact !== 'object') state.contact = {};
+    setSyncStatus('ok');
+  }catch(e){
+    console.error('تعذر تحميل البيانات المشتركة', e);
+    setSyncStatus('err');
+  }
+  applyStateToUI();
+}
+
+async function persistState(){
+  setSyncStatus('syncing');
+  try{
+    const res = await fetch(API_URL, {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify(state)
+    });
+    if(!res.ok) throw new Error('bad status');
+    setSyncStatus('ok');
+  }catch(e){
+    console.error('تعذر حفظ البيانات المشتركة', e);
+    setSyncStatus('err');
+  }
+}
+
+function saveState(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(persistState, 400);
+}
+
+function applyStateToUI(){
+  document.getElementById('clubName').value = state.clubName;
+  document.getElementById('clubTagline').value = state.clubTagline;
+  document.getElementById('heroName').textContent = state.clubName;
+  document.getElementById('heroTag').textContent = state.clubTagline;
+  document.getElementById('c_phone').value = state.contact.phone || '';
+  document.getElementById('c_email').value = state.contact.email || '';
+  document.getElementById('c_address').value = state.contact.address || '';
+  document.getElementById('c_facebook').value = state.contact.facebook || '';
+  renderAchievements(); renderNews(); buildChips(); renderRoster();
+}
 
 /* ---------- navigation ---------- */
 document.querySelectorAll('nav button').forEach(btn=>{
@@ -295,6 +374,11 @@ document.querySelectorAll('.add-toggle').forEach(btn=>{
 });
 
 /* ---------- helpers ---------- */
+const SPORTS = ["كرة القدم","كرة السلة","كرة اليد","الكرة الطائرة","ألعاب القوى","السباحة","الجودو","الكاراتيه","الملاكمة","تنس الطاولة","أخرى"];
+const SPORT_COLORS = {"كرة القدم":"#d4af37","كرة السلة":"#c98a3f","كرة اليد":"#b5675d","الكرة الطائرة":"#8a9bb0","ألعاب القوى":"#e3c05a","السباحة":"#6fa3a6","الجودو":"#a56a63","الكاراتيه":"#9a8ab5","الملاكمة":"#8a7431","تنس الطاولة":"#8fae8f","أخرى":"#9a9385"};
+let activeSport = "الكل";
+let pendingPhoto = null;
+
 function toArabicDigits(str){
   const map = {'0':'٠','1':'١','2':'٢','3':'٣','4':'٤','5':'٥','6':'٦','7':'٧','8':'٨','9':'٩'};
   return String(str).replace(/[0-9]/g, d => map[d]);
@@ -313,38 +397,16 @@ function initials(name){
   return parts.slice(0,2).map(p=>p[0]).join('');
 }
 
-/* ---------- storage ---------- */
-async function loadAll(){
-  try{ const r=await window.storage.get('athletes',false); athletes = r?JSON.parse(r.value):[]; }catch(e){ athletes=[]; }
-  try{ const r=await window.storage.get('achievements',false); achievements = r?JSON.parse(r.value):[]; }catch(e){ achievements=[]; }
-  try{ const r=await window.storage.get('news',false); news = r?JSON.parse(r.value):[]; }catch(e){ news=[]; }
-  try{ const r=await window.storage.get('contact-info',false); contact = r?JSON.parse(r.value):{}; }catch(e){ contact={}; }
-  try{ const r=await window.storage.get('club-name',false); if(r) document.getElementById('clubName').value=r.value; }catch(e){}
-  try{ const r=await window.storage.get('club-tagline',false); if(r) document.getElementById('clubTagline').value=r.value; }catch(e){}
-
-  document.getElementById('heroName').textContent = document.getElementById('clubName').value;
-  document.getElementById('heroTag').textContent = document.getElementById('clubTagline').value;
-
-  document.getElementById('c_phone').value = contact.phone||'';
-  document.getElementById('c_email').value = contact.email||'';
-  document.getElementById('c_address').value = contact.address||'';
-  document.getElementById('c_facebook').value = contact.facebook||'';
-
-  renderAchievements(); renderNews(); buildChips(); renderRoster();
-}
-async function save(key, value){
-  try{ await window.storage.set(key, typeof value==='string'?value:JSON.stringify(value), false); }
-  catch(e){ console.error('تعذر الحفظ: '+key, e); }
-}
-
 /* ---------- club identity ---------- */
 document.getElementById('clubName').addEventListener('change', e=>{
-  save('club-name', e.target.value);
+  state.clubName = e.target.value;
   document.getElementById('heroName').textContent = e.target.value;
+  saveState();
 });
 document.getElementById('clubTagline').addEventListener('change', e=>{
-  save('club-tagline', e.target.value);
+  state.clubTagline = e.target.value;
   document.getElementById('heroTag').textContent = e.target.value;
+  saveState();
 });
 
 /* ---------- achievements ---------- */
@@ -352,60 +414,60 @@ function addAchievement(){
   const title=document.getElementById('achv_title').value.trim();
   const year=document.getElementById('achv_year').value.trim();
   if(!title) return;
-  achievements.unshift({id:Date.now(), title, year});
-  save('achievements', achievements);
+  state.achievements.unshift({id:Date.now(), title, year});
   document.getElementById('achv_title').value='';
   document.getElementById('achv_year').value='';
   renderAchievements();
+  saveState();
 }
 function renderAchievements(){
   const list=document.getElementById('achvList');
-  if(achievements.length===0){ list.innerHTML='<li class="achv-item" style="justify-content:center;color:var(--chalk-dim)">لا توجد إنجازات مضافة بعد</li>'; return; }
-  list.innerHTML = achievements.map(a=>`
+  if(state.achievements.length===0){ list.innerHTML='<li class="achv-item" style="justify-content:center;color:var(--chalk-dim)">لا توجد إنجازات مضافة بعد</li>'; return; }
+  list.innerHTML = state.achievements.map(a=>`
     <li class="achv-item">
       <div class="txt">🏆 ${escapeHtml(a.title)} ${a.year?`<span class="yr">${toArabicDigits(a.year)}</span>`:''}</div>
       <button class="del-x" onclick="delAchievement(${a.id})">✕</button>
     </li>`).join('');
 }
-function delAchievement(id){ achievements=achievements.filter(a=>a.id!==id); save('achievements',achievements); renderAchievements(); }
+function delAchievement(id){ state.achievements=state.achievements.filter(a=>a.id!==id); renderAchievements(); saveState(); }
 
 /* ---------- news ---------- */
 function addNews(){
   const title=document.getElementById('news_title').value.trim();
   const content=document.getElementById('news_content').value.trim();
   if(!title) return;
-  news.unshift({id:Date.now(), title, content, date:new Date().toISOString()});
-  save('news', news);
+  state.news.unshift({id:Date.now(), title, content, date:new Date().toISOString()});
   document.getElementById('news_title').value='';
   document.getElementById('news_content').value='';
   renderNews();
+  saveState();
 }
 function renderNews(){
   const grid=document.getElementById('newsGrid');
-  if(news.length===0){ grid.innerHTML='<div class="empty" style="grid-column:1/-1"><span class="big">📰</span>لا توجد أخبار منشورة بعد</div>'; return; }
-  grid.innerHTML = news.map(n=>`
+  if(state.news.length===0){ grid.innerHTML='<div class="empty" style="grid-column:1/-1"><span class="big">📰</span>لا توجد أخبار منشورة بعد</div>'; return; }
+  grid.innerHTML = state.news.map(n=>`
     <div class="news-card">
       <div class="nd">${new Date(n.date).toLocaleDateString('ar-DZ')} · <button class="del-x" onclick="delNews(${n.id})" style="margin-inline-start:8px">حذف</button></div>
       <h3>${escapeHtml(n.title)}</h3>
       <p>${escapeHtml(n.content)}</p>
     </div>`).join('');
 }
-function delNews(id){ news=news.filter(n=>n.id!==id); save('news',news); renderNews(); }
+function delNews(id){ state.news=state.news.filter(n=>n.id!==id); renderNews(); saveState(); }
 
 /* ---------- contact ---------- */
 ['c_phone','c_email','c_address','c_facebook'].forEach(id=>{
   document.getElementById(id).addEventListener('change', ()=>{
-    contact = {
+    state.contact = {
       phone: document.getElementById('c_phone').value.trim(),
       email: document.getElementById('c_email').value.trim(),
       address: document.getElementById('c_address').value.trim(),
       facebook: document.getElementById('c_facebook').value.trim()
     };
-    save('contact-info', contact);
+    saveState();
   });
 });
 
-/* ---------- photo upload (resize to keep storage small) ---------- */
+/* ---------- photo upload ---------- */
 document.getElementById('f_photo').addEventListener('change', (e)=>{
   const file = e.target.files[0];
   if(!file) return;
@@ -413,14 +475,14 @@ document.getElementById('f_photo').addEventListener('change', (e)=>{
   reader.onload = (ev)=>{
     const img = new Image();
     img.onload = ()=>{
-      const size = 160;
+      const size = 140;
       const canvas = document.createElement('canvas');
       canvas.width = size; canvas.height = size;
       const ctx = canvas.getContext('2d');
       const scale = Math.max(size/img.width, size/img.height);
       const w = img.width*scale, h = img.height*scale;
       ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
-      pendingPhoto = canvas.toDataURL('image/jpeg', 0.7);
+      pendingPhoto = canvas.toDataURL('image/jpeg', 0.6);
       document.getElementById('photoPreview').innerHTML = `<img src="${pendingPhoto}">`;
     };
     img.src = ev.target.result;
@@ -432,13 +494,13 @@ document.getElementById('f_photo').addEventListener('change', (e)=>{
 function buildChips(){
   const wrap=document.getElementById('sportChips');
   const counts={};
-  athletes.forEach(a=>counts[a.sport]=(counts[a.sport]||0)+1);
+  state.athletes.forEach(a=>counts[a.sport]=(counts[a.sport]||0)+1);
   const chipsData=["الكل", ...SPORTS.filter(s=>counts[s])];
   wrap.innerHTML="";
   chipsData.forEach(s=>{
     const c=document.createElement('div');
     c.className='chip'+(s===activeSport?' active':'');
-    c.textContent = s==="الكل" ? `الكل (${athletes.length})` : `${s} (${counts[s]})`;
+    c.textContent = s==="الكل" ? `الكل (${state.athletes.length})` : `${s} (${counts[s]})`;
     c.onclick=()=>{ activeSport=s; buildChips(); renderRoster(); };
     wrap.appendChild(c);
   });
@@ -446,13 +508,13 @@ function buildChips(){
 function renderRoster(){
   const grid=document.getElementById('rosterGrid');
   const q=document.getElementById('searchBox').value.trim();
-  let list=athletes.filter(a=>a.name.includes(q));
+  let list=state.athletes.filter(a=>a.name.includes(q));
   if(activeSport!=="الكل") list=list.filter(a=>a.sport===activeSport);
 
   document.getElementById('statsBar').innerHTML = `
-    <div class="stat"><span class="num">${toArabicDigits(athletes.length)}</span><span class="lbl">مسجَّل</span></div>
-    <div class="stat"><span class="num">${toArabicDigits(new Set(athletes.map(a=>a.sport)).size)}</span><span class="lbl">رياضات</span></div>
-    <div class="stat"><span class="num">${toArabicDigits(athletes.filter(a=>a.medical).length)}</span><span class="lbl">شهادة طبية</span></div>`;
+    <div class="stat"><span class="num">${toArabicDigits(state.athletes.length)}</span><span class="lbl">مسجَّل</span></div>
+    <div class="stat"><span class="num">${toArabicDigits(new Set(state.athletes.map(a=>a.sport)).size)}</span><span class="lbl">رياضات</span></div>
+    <div class="stat"><span class="num">${toArabicDigits(state.athletes.filter(a=>a.medical).length)}</span><span class="lbl">شهادة طبية</span></div>`;
 
   if(list.length===0){ grid.innerHTML='<div class="empty"><span class="big">🛡️</span>لا يوجد رياضيون بعد — ابدأ بتسجيل أول لاعب من النموذج.</div>'; return; }
 
@@ -477,8 +539,8 @@ function renderRoster(){
 
   grid.querySelectorAll('.del-btn').forEach(btn=>{
     btn.onclick=()=>{
-      athletes = athletes.filter(a=>String(a.id)!==btn.dataset.id);
-      save('athletes', athletes); buildChips(); renderRoster();
+      state.athletes = state.athletes.filter(a=>String(a.id)!==btn.dataset.id);
+      buildChips(); renderRoster(); saveState();
     };
   });
 }
@@ -493,21 +555,21 @@ document.getElementById('regForm').addEventListener('submit', async (e)=>{
   const medical=document.getElementById('f_medical').checked;
   if(!name||!dob) return;
 
-  athletes.push({
+  state.athletes.push({
     id: Date.now(), name, dob, category, sport, phone, medical,
     photo: pendingPhoto || null,
     registeredAt: new Date().toISOString()
   });
-  await save('athletes', athletes);
   e.target.reset();
   pendingPhoto = null;
   document.getElementById('photoPreview').innerHTML = 'بدون صورة';
   buildChips(); renderRoster();
+  saveState();
 });
 
 document.getElementById('searchBox').addEventListener('input', renderRoster);
 
-loadAll();
+loadState();
 </script>
 </body>
 </html>
