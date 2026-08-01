@@ -3,604 +3,568 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نادي الرجاء الرياضي سوق أهراس</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<title>نادي الرجاء الرياضي سوق أهراس — فرع الجودو</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#12160f">
+<link rel="icon" href="app_icon_192.png">
+<link rel="apple-touch-icon" href="app_icon_180.png">
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Oswald:wght@500;600;700&display=swap');
   :root{
-    --bg:#0c0c0c; --bg-panel:#161513; --bg-card:#1a1815;
-    --chalk:#f2ede0; --chalk-dim:#c7c0ac;
-    --gold:#d4af37; --gold-bright:#f0cb63; --gold-dim:#8a7431;
-    --line: rgba(212,175,55,0.18); --danger:#c25c50; --radius:14px;
+    --dojo-black:#12160f; --dojo-panel:#1b2117; --dojo-panel-2:#212a1c;
+    --tatami:#3c6e47; --tatami-light:#5a9068; --gi:#f4f1e6;
+    --belt-yellow:#e0b400; --belt-orange:#d9772e; --belt-green:#3c6e47;
+    --belt-blue:#2a5f8a; --belt-brown:#6b4a2f; --belt-black:#141414; --belt-white:#f4f1e6;
+    --muted:#9fae9a; --danger:#d97575;
+    --gold:#c9a227; --gold-light:#e6c34a; --ink-on-gold:#1a1400;
   }
-  *{box-sizing:border-box;}
-  body{margin:0; background:radial-gradient(circle at 50% 0%, rgba(212,175,55,0.06), transparent 45%), var(--bg);
-    color:var(--chalk); font-family:'Tajawal', sans-serif; min-height:100vh;}
-  .display{font-family:'Almarai', sans-serif;}
-
-  .sync-bar{
-    background:#1c1c1a; border-bottom:1px solid var(--line); padding:8px 32px;
-    font-size:12px; color:var(--chalk-dim); display:flex; align-items:center; gap:8px;
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--dojo-black);
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(90,144,104,0.08), transparent 40%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 42px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 42px);
+    color:var(--gi); font-family:'Cairo', sans-serif; min-height:100vh;
   }
-  .sync-dot{width:7px; height:7px; border-radius:50%; background:#8fbf9a; flex-shrink:0;}
-  .sync-dot.syncing{background:var(--gold); animation:pulse 1s infinite;}
-  .sync-dot.err{background:var(--danger);}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
-
-  header{padding:22px 32px; border-bottom:1px solid var(--line); display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between;}
-  .club-id{display:flex; align-items:center; gap:14px;}
-  .crest{width:48px; height:56px; flex-shrink:0;}
-  .crest svg{width:100%; height:100%; display:block;}
-  .club-text{display:flex; flex-direction:column; gap:4px;}
-  .club-name{font-family:'Almarai'; font-weight:800; font-size:22px; background:transparent; border:none; color:var(--gold-bright); border-bottom:2px dashed transparent; padding:2px 0; outline:none; max-width:380px;}
-  .club-name:focus, .club-name:hover{border-bottom-color:var(--gold-dim);}
-  .tagline{font-size:12px; color:var(--chalk-dim); background:transparent; border:none; outline:none; border-bottom:1px dashed transparent; font-family:'Tajawal'; max-width:380px;}
-  .tagline:focus, .tagline:hover{border-bottom-color:var(--gold-dim);}
-
-  nav{display:flex; gap:6px; background:var(--bg-panel); border:1px solid var(--line); border-radius:999px; padding:4px;}
-  nav button{border:none; background:transparent; color:var(--chalk-dim); font-family:'Almarai'; font-weight:700; font-size:13px; padding:9px 20px; border-radius:999px; cursor:pointer;}
-  nav button.active{background:var(--gold); color:#141005;}
-
-  .page{display:none; padding:28px 32px 60px; max-width:1200px; margin:0 auto;}
-  .page.active{display:block;}
-
-  .hero{text-align:center; padding:50px 20px 40px; border-bottom:1px solid var(--line); margin-bottom:36px;}
-  .hero .crest-big{width:110px; height:128px; margin:0 auto 18px;}
-  .hero .crest-big svg{width:100%; height:100%;}
-  .hero h1{font-family:'Almarai'; font-weight:800; font-size:34px; color:var(--gold-bright); margin:0 0 8px;}
-  .hero p{color:var(--chalk-dim); font-size:15px; margin:0;}
-
-  .section-block{margin-bottom:44px;}
-  .section-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
-  .section-head h2{font-family:'Almarai'; font-size:19px; color:var(--gold-bright); display:flex; align-items:center; gap:9px; margin:0;}
-  .section-head h2::before{content:''; width:4px; height:18px; background:var(--gold); border-radius:2px; display:inline-block;}
-  .add-toggle{background:var(--bg-panel); border:1px solid var(--line); color:var(--gold); padding:7px 16px; border-radius:8px; font-size:12.5px; cursor:pointer; font-family:'Tajawal';}
-  .add-toggle:hover{border-color:var(--gold-dim);}
-
-  .inline-form{background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-bottom:18px; display:none;}
-  .inline-form.show{display:grid; gap:10px;}
-  .inline-form input, .inline-form textarea{width:100%; background:#000; border:1px solid var(--line); color:var(--chalk); border-radius:8px; padding:10px 12px; font-family:'Tajawal'; font-size:14px;}
-  .inline-form textarea{resize:vertical; min-height:70px;}
-  .inline-form .btn-row{display:flex; gap:8px;}
-  .mini-btn{background:linear-gradient(180deg, var(--gold-bright), var(--gold)); color:#141005; border:none; border-radius:8px; padding:9px 18px; font-family:'Almarai'; font-weight:800; font-size:13px; cursor:pointer;}
-
-  .achv-list{list-style:none; margin:0; padding:0; display:grid; gap:10px;}
-  .achv-item{background:var(--bg-card); border:1px solid var(--line); border-radius:10px; padding:13px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px;}
-  .achv-item .txt{display:flex; align-items:center; gap:10px; font-size:14px;}
-  .achv-item .yr{color:var(--gold); font-family:'Almarai'; font-weight:800; font-size:13px; background:rgba(212,175,55,0.1); padding:3px 10px; border-radius:999px;}
-
-  .news-grid{display:grid; gap:14px;}
-  .news-card{background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius); padding:18px;}
-  .news-card .nd{font-size:11px; color:var(--gold-dim); margin-bottom:6px;}
-  .news-card h3{font-family:'Almarai'; font-size:15.5px; margin:0 0 8px; color:var(--chalk);}
-  .news-card p{font-size:13px; color:var(--chalk-dim); line-height:1.8; margin:0;}
-
-  .contact-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px;}
-  .contact-card{background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; text-align:center;}
-  .contact-card .ic{font-size:22px; margin-bottom:8px;}
-  .contact-card .lbl{font-size:11px; color:var(--chalk-dim); margin-bottom:4px;}
-  .contact-card input{width:100%; background:transparent; border:none; color:var(--gold-bright); text-align:center; font-family:'Tajawal'; font-size:13.5px; outline:none; border-bottom:1px dashed transparent;}
-  .contact-card input:focus, .contact-card input:hover{border-bottom-color:var(--gold-dim);}
-
-  .del-x{background:none; border:none; color:var(--chalk-dim); cursor:pointer; font-size:14px;}
-  .del-x:hover{color:var(--danger);}
-
-  .reg-layout{display:grid; grid-template-columns:340px 1fr; gap:26px; align-items:start;}
-  @media (max-width: 880px){ .reg-layout{grid-template-columns:1fr;} }
-
-  .panel{background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px;}
-  .panel h2{font-family:'Almarai'; font-size:16px; margin:0 0 16px; display:flex; align-items:center; gap:8px; color:var(--gold-bright);}
-  .panel h2::before{content:''; width:4px; height:16px; background:var(--gold); border-radius:2px; display:inline-block;}
-
-  label{display:block; font-size:12px; color:var(--chalk-dim); margin:12px 0 5px;}
-  label:first-of-type{margin-top:0;}
-  input, select{width:100%; background:#000; border:1px solid var(--line); color:var(--chalk); border-radius:8px; padding:10px 12px; font-family:'Tajawal'; font-size:14px;}
-  input:focus, select:focus{outline:2px solid var(--gold-dim);}
-  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-
-  .photo-upload{display:flex; align-items:center; gap:14px; margin-top:12px;}
-  .photo-preview{width:64px; height:64px; border-radius:50%; border:2px dashed var(--gold-dim); background:#000; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; color:var(--gold-dim); font-size:11px; text-align:center;}
-  .photo-preview img{width:100%; height:100%; object-fit:cover;}
-  .photo-btn{background:var(--bg-card); border:1px solid var(--line); color:var(--gold); padding:8px 14px; border-radius:8px; font-size:12.5px; cursor:pointer;}
-  .photo-btn:hover{border-color:var(--gold-dim);}
-  input[type=file]{display:none;}
-
-  .checkline{display:flex; align-items:center; gap:8px; margin-top:14px; font-size:13px; color:var(--chalk-dim);}
-  .checkline input{width:16px; height:16px; accent-color:var(--gold);}
-
-  .btn{margin-top:18px; width:100%; background:linear-gradient(180deg, var(--gold-bright), var(--gold)); color:#141005; border:none; border-radius:8px; padding:12px; font-family:'Almarai'; font-weight:800; font-size:14px; cursor:pointer;}
-  .btn:hover{filter:brightness(1.08);}
-  .btn:disabled{opacity:0.6; cursor:not-allowed;}
-
-  .toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:18px;}
-  .search{flex:1; min-width:160px;}
-  .chips{display:flex; flex-wrap:wrap; gap:8px;}
-  .chip{border:1px solid var(--line); background:var(--bg-panel); color:var(--chalk-dim); padding:6px 14px; border-radius:999px; font-size:12.5px; cursor:pointer; white-space:nowrap;}
-  .chip.active{background:var(--gold); color:#141005; border-color:var(--gold); font-weight:700;}
-
-  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:16px;}
-  .card{background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius); padding:16px; position:relative; display:flex; gap:14px;}
-  .avatar{flex-shrink:0; width:52px; height:52px; border-radius:50%; border:2px solid var(--gold-dim); display:flex; align-items:center; justify-content:center; font-family:'Almarai'; font-weight:800; font-size:17px; color:var(--gold); overflow:hidden; background:#000;}
-  .avatar img{width:100%; height:100%; object-fit:cover;}
-  .card-body{flex:1; min-width:0;}
-  .card-name{font-family:'Almarai'; font-weight:700; font-size:15.5px; margin-bottom:4px; color:var(--chalk);}
-  .card-meta{font-size:12px; color:var(--chalk-dim); line-height:1.7;}
-  .tag{display:inline-block; font-size:11px; padding:2px 9px; border-radius:999px; margin-top:6px; color:#141005; font-weight:700;}
-  .med-ok{color:#8fbf9a;} .med-no{color:var(--danger);}
-  .del-btn{position:absolute; top:10px; left:10px; background:none; border:none; color:var(--chalk-dim); cursor:pointer; font-size:15px; padding:4px;}
-  .del-btn:hover{color:var(--danger);}
-
-  .empty{text-align:center; padding:60px 20px; color:var(--chalk-dim); border:1px dashed var(--line); border-radius:var(--radius); grid-column:1/-1;}
-  .empty .big{font-size:38px; display:block; margin-bottom:10px;}
-  .stats{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:18px;}
-  .stat{background:var(--bg-panel); border:1px solid var(--line); border-radius:12px; padding:10px 18px; text-align:center; min-width:86px;}
-  .stat .num{font-family:'Almarai'; font-weight:800; font-size:20px; color:var(--gold); display:block;}
-  .stat .lbl{font-size:11px; color:var(--chalk-dim);}
-  ::placeholder{color:#5c5648;}
+  .app{max-width:1240px; margin:0 auto; padding:22px 20px 60px;}
+  header.top{display:flex; align-items:center; justify-content:space-between; padding-bottom:16px; border-bottom:1px solid rgba(244,241,230,0.12); margin-bottom:18px; flex-wrap:wrap; gap:14px;}
+  .brand{display:flex; align-items:center; gap:14px;}
+  .brand .mark{width:52px; height:52px; border-radius:10px; background:#000; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 1px rgba(201,162,39,0.35), 0 0 16px rgba(201,162,39,0.15); overflow:hidden;}
+  .brand .mark img{width:100%; height:100%; object-fit:contain;}
+  .brand h1{font-family:'Oswald','Cairo',sans-serif; font-size:18px; font-weight:600; color:var(--gold-light);}
+  .brand p{font-size:11.5px; color:var(--muted); margin-top:2px;}
+  .role-switch{display:flex; align-items:center; gap:8px;}
+  .role-switch label{font-size:12px; color:var(--muted);}
+  .role-switch select{background:var(--dojo-panel); color:var(--gi); border:1px solid rgba(244,241,230,0.18); padding:8px 12px; border-radius:8px; font-family:'Cairo'; font-size:13px; cursor:pointer;}
+  nav.tabs{display:flex; gap:5px; background:var(--dojo-panel); padding:5px; border-radius:10px; border:1px solid rgba(244,241,230,0.08); flex-wrap:wrap; margin-bottom:22px;}
+  nav.tabs button{background:transparent; border:none; color:var(--muted); font-family:'Cairo'; font-weight:600; font-size:13px; padding:9px 14px; border-radius:7px; cursor:pointer; transition:.15s; white-space:nowrap;}
+  nav.tabs button.active{background:var(--gold); color:var(--ink-on-gold);}
+  nav.tabs button:hover:not(.active){color:var(--gold-light);}
+  nav.tabs button.hidden-role{display:none;}
+  .stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px;}
+  .stat-card{background:var(--dojo-panel); border:1px solid rgba(244,241,230,0.08); border-radius:12px; padding:16px 18px; position:relative; overflow:hidden;}
+  .stat-card::before{content:''; position:absolute; inset-inline-start:0; top:0; bottom:0; width:4px; background:var(--accent,var(--gold));}
+  .stat-card .num{font-family:'Oswald'; font-size:28px; font-weight:700; line-height:1;}
+  .stat-card .lbl{font-size:12px; color:var(--muted); margin-top:5px;}
+  .panel{background:var(--dojo-panel); border:1px solid rgba(244,241,230,0.08); border-radius:14px; padding:20px; margin-bottom:20px;}
+  .panel h2{font-family:'Oswald'; font-size:15.5px; font-weight:600; margin-bottom:16px; display:flex; align-items:center; gap:8px; justify-content:space-between;}
+  .panel h2 .eyebrow{font-size:10.5px; color:var(--gold-light); font-weight:600; background:rgba(201,162,39,0.16); padding:3px 8px; border-radius:5px;}
+  .two-col{display:grid; grid-template-columns:1.3fr 1fr; gap:20px;}
+  .belt-row{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid rgba(244,241,230,0.06);}
+  .belt-row:last-child{border-bottom:none;}
+  .belt-name{flex:1; font-size:13px;}
+  .belt-chip{font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; font-family:'Oswald';}
+  .toolbar{display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; align-items:center;}
+  .toolbar input, .toolbar select{background:var(--dojo-black); border:1px solid rgba(244,241,230,0.15); color:var(--gi); padding:11px 14px; border-radius:9px; font-family:'Cairo'; font-size:13.5px;}
+  .toolbar input{flex:1; min-width:180px;}
+  .btn-primary{background:var(--gold); color:var(--ink-on-gold); border:none; padding:11px 20px; border-radius:9px; font-family:'Cairo'; font-weight:700; font-size:13.5px; cursor:pointer;}
+  .btn-primary:hover{background:var(--gold-light);}
+  .btn-primary:disabled{opacity:.5; cursor:not-allowed;}
+  .btn-ghost{background:transparent; color:var(--gi); border:1px solid rgba(244,241,230,0.2); padding:8px 14px; border-radius:9px; font-family:'Cairo'; font-weight:600; font-size:12.5px; cursor:pointer;}
+  .btn-ghost:hover{border-color:var(--gold-light); color:var(--gold-light);}
+  .btn-danger{background:transparent; color:var(--danger); border:1px solid rgba(217,117,117,0.35); padding:8px 14px; border-radius:9px; font-family:'Cairo'; font-weight:600; font-size:12.5px; cursor:pointer;}
+  .athlete-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px;}
+  .athlete-card{background:var(--dojo-panel); border:1px solid rgba(244,241,230,0.08); border-radius:12px; padding:16px; position:relative;}
+  .athlete-top{display:flex; align-items:center; gap:12px; margin-bottom:10px;}
+  .avatar{width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#2a5f8a,#3c6e47); display:flex; align-items:center; justify-content:center; font-family:'Oswald'; font-weight:700; font-size:15px; flex-shrink:0;}
+  .athlete-name{font-size:13.5px; font-weight:700;}
+  .athlete-meta{font-size:11.5px; color:var(--muted); margin-top:2px;}
+  .belt-strip{height:7px; border-radius:4px; margin-top:6px; position:relative; overflow:hidden;}
+  .fee-tag{position:absolute; top:14px; inset-inline-end:14px; font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; font-family:'Oswald';}
+  .paid{background:rgba(60,110,71,0.25); color:var(--tatami-light);}
+  .unpaid{background:rgba(217,119,46,0.22); color:#e39a5c;}
+  .card-actions{display:flex; gap:6px; margin-top:10px;}
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  thead th{text-align:start; color:var(--muted); font-weight:600; font-size:11.5px; padding:8px 10px; border-bottom:1px solid rgba(244,241,230,0.12);}
+  tbody td{padding:11px 10px; border-bottom:1px solid rgba(244,241,230,0.06); vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  .status-pill{font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; font-family:'Oswald'; display:inline-block;}
+  .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .form-grid.full{grid-column:1/-1;}
+  .field label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px;}
+  .field input, .field select, .field textarea{width:100%; background:var(--dojo-black); border:1px solid rgba(244,241,230,0.15); color:var(--gi); padding:10px 12px; border-radius:8px; font-family:'Cairo'; font-size:13.5px;}
+  .doc-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:14px;}
+  .doc-card{background:var(--dojo-panel-2); border:1px solid rgba(244,241,230,0.08); border-radius:12px; padding:18px; text-align:center;}
+  .doc-icon{font-size:26px; margin-bottom:10px;}
+  .doc-title{font-size:13px; font-weight:700; margin-bottom:12px;}
+  .empty{text-align:center; padding:30px 10px; color:var(--muted); font-size:13px;}
+  .loading{text-align:center; padding:60px 10px; color:var(--muted);}
+  .toast{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--gold); color:var(--ink-on-gold); padding:10px 18px; border-radius:8px; font-size:13px; font-weight:700; opacity:0; transition:opacity .25s; pointer-events:none; z-index:50;}
+  .toast.show{opacity:1;}
+  @media (max-width:820px){
+    .stat-grid{grid-template-columns:repeat(2,1fr);} .two-col{grid-template-columns:1fr;}
+    .form-grid{grid-template-columns:1fr;} header.top{flex-direction:column; align-items:flex-start;}
+  }
 </style>
 </head>
 <body>
-
-<div class="sync-bar">
-  <span class="sync-dot" id="syncDot"></span>
-  <span id="syncText">متصل بالتخزين المشترك</span>
-</div>
-
-<header>
-  <div class="club-id">
-    <div class="crest">
-      <svg viewBox="0 0 100 116" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 2 L96 22 C96 60 80 96 50 114 C20 96 4 60 4 22 Z" stroke="#d4af37" stroke-width="3" fill="#0c0c0c"/>
-        <path d="M50 10 L89 27 C89 61 75 92 50 108 C25 92 11 61 11 27 Z" stroke="#d4af37" stroke-width="1.5" fill="none"/>
-        <circle cx="50" cy="6" r="2.5" fill="#d4af37"/>
-        <path d="M50 40 C40 40 33 47 33 56 C33 66 40 74 50 78 C60 74 67 66 67 56 C67 47 60 40 50 40 Z" fill="#d4af37" opacity="0.9"/>
-      </svg>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="mark"><img src="logo.png" alt="شعار النادي"></div>
+      <div><h1>نادي الرجاء الرياضي سوق أهراس</h1><p>فرع الجودو — التطبيق (بيانات حقيقية محفوظة)</p></div>
     </div>
-    <div class="club-text">
-      <input class="club-name display" id="clubName" value="نادي الرجاء الرياضي سوق أهراس" />
-      <input class="tagline" id="clubTagline" value="فخر سوق أهراس منذ التأسيس" />
+    <div class="role-switch">
+      <label>عرض حسب الحساب:</label>
+      <select id="roleSelect">
+        <option value="president">الرئيس</option>
+        <option value="coach">المدرب</option>
+        <option value="treasurer">أمين المال</option>
+        <option value="parent">ولي الرياضي</option>
+      </select>
     </div>
-  </div>
-  <nav>
-    <button class="active" data-page="home">الرئيسية</button>
-    <button data-page="reg">التسجيل</button>
+  </header>
+
+  <nav class="tabs" id="tabsNav">
+    <button class="active" data-tab="dashboard" data-roles="president,coach,treasurer">لوحة التحكم</button>
+    <button data-tab="athletes" data-roles="president,coach">الرياضيون</button>
+    <button data-tab="subscriptions" data-roles="president,treasurer">الاشتراكات</button>
+    <button data-tab="attendance" data-roles="president,coach,parent">الحضور</button>
+    <button data-tab="belts" data-roles="president,coach,parent">الأحزمة</button>
+    <button data-tab="competitions" data-roles="president,coach,parent">المنافسات</button>
+    <button data-tab="notifications" data-roles="president,coach,parent">الإشعارات</button>
+    <button data-tab="documents" data-roles="president,treasurer">الوثائق</button>
   </nav>
-</header>
 
-<div class="page active" id="page-home">
-  <div class="hero">
-    <div class="crest-big">
-      <svg viewBox="0 0 100 116" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 2 L96 22 C96 60 80 96 50 114 C20 96 4 60 4 22 Z" stroke="#d4af37" stroke-width="3" fill="#0c0c0c"/>
-        <path d="M50 10 L89 27 C89 61 75 92 50 108 C25 92 11 61 11 27 Z" stroke="#d4af37" stroke-width="1.5" fill="none"/>
-        <circle cx="50" cy="6" r="2.5" fill="#d4af37"/>
-        <path d="M50 40 C40 40 33 47 33 56 C33 66 40 74 50 78 C60 74 67 66 67 56 C67 47 60 40 50 40 Z" fill="#d4af37" opacity="0.9"/>
-      </svg>
-    </div>
-    <h1 id="heroName">نادي الرجاء الرياضي سوق أهراس</h1>
-    <p id="heroTag">فخر سوق أهراس منذ التأسيس</p>
-  </div>
+  <div id="loadingState" class="loading">جارٍ تحميل البيانات...</div>
+  <div id="mainContent" style="display:none">
 
-  <div class="section-block">
-    <div class="section-head">
-      <h2>إنجازات النادي</h2>
-      <button class="add-toggle" data-toggle="achv-form">+ إضافة إنجاز</button>
-    </div>
-    <div class="inline-form" id="achv-form">
-      <input type="text" id="achv_title" placeholder="عنوان الإنجاز (مثال: بطل الرابطة الجهوية)">
-      <input type="text" id="achv_year" placeholder="السنة (مثال: 2025)">
-      <div class="btn-row"><button class="mini-btn" onclick="addAchievement()">إضافة</button></div>
-    </div>
-    <ul class="achv-list" id="achvList"></ul>
-  </div>
-
-  <div class="section-block">
-    <div class="section-head">
-      <h2>أخبار الفريق</h2>
-      <button class="add-toggle" data-toggle="news-form">+ إضافة خبر</button>
-    </div>
-    <div class="inline-form" id="news-form">
-      <input type="text" id="news_title" placeholder="عنوان الخبر">
-      <textarea id="news_content" placeholder="تفاصيل الخبر..."></textarea>
-      <div class="btn-row"><button class="mini-btn" onclick="addNews()">نشر الخبر</button></div>
-    </div>
-    <div class="news-grid" id="newsGrid"></div>
-  </div>
-
-  <div class="section-block">
-    <div class="section-head"><h2>التواصل مع النادي</h2></div>
-    <div class="contact-grid">
-      <div class="contact-card">
-        <div class="ic">📞</div><div class="lbl">الهاتف</div>
-        <input id="c_phone" placeholder="0555 12 34 56">
+    <section id="dashboard">
+      <div class="stat-grid">
+        <div class="stat-card"><div class="num" id="statAthletes">0</div><div class="lbl">عدد الرياضيين</div></div>
+        <div class="stat-card"><div class="num" id="statPaid">0</div><div class="lbl">دفعوا هذا الشهر</div></div>
+        <div class="stat-card"><div class="num" id="statRevenue">0</div><div class="lbl">الإيرادات هذا الشهر (دج)</div></div>
+        <div class="stat-card"><div class="num" id="statUnpaid">0</div><div class="lbl">لم يدفعوا بعد</div></div>
       </div>
-      <div class="contact-card">
-        <div class="ic">✉️</div><div class="lbl">البريد الإلكتروني</div>
-        <input id="c_email" placeholder="contact@club.com">
+      <div class="panel">
+        <h2>آخر الإشعارات</h2>
+        <div id="dashNotifs"></div>
       </div>
-      <div class="contact-card">
-        <div class="ic">📍</div><div class="lbl">العنوان</div>
-        <input id="c_address" placeholder="سوق أهراس، الجزائر">
-      </div>
-      <div class="contact-card">
-        <div class="ic">📘</div><div class="lbl">فيسبوك</div>
-        <input id="c_facebook" placeholder="facebook.com/...">
-      </div>
-    </div>
-  </div>
-</div>
+    </section>
 
-<div class="page" id="page-reg">
-  <div class="stats" id="statsBar"></div>
-  <div class="reg-layout">
-    <section class="panel">
-      <h2>تسجيل رياضي جديد</h2>
-      <form id="regForm">
-        <label>الصورة الشخصية</label>
-        <div class="photo-upload">
-          <div class="photo-preview" id="photoPreview">بدون صورة</div>
-          <button type="button" class="photo-btn" onclick="document.getElementById('f_photo').click()">اختر صورة</button>
-          <input type="file" id="f_photo" accept="image/*">
+    <section id="athletes" style="display:none">
+      <div class="toolbar">
+        <input type="text" id="searchInput" placeholder="ابحث عن رياضي بالاسم...">
+        <button class="btn-primary" id="showFormBtn">+ تسجيل رياضي جديد</button>
+      </div>
+      <div class="athlete-grid" id="athleteGrid"></div>
+
+      <div class="panel" id="regForm" style="margin-top:22px; display:none">
+        <h2 id="regFormTitle">استمارة تسجيل رياضي جديد</h2>
+        <div class="form-grid">
+          <div class="field"><label>الاسم الكامل</label><input type="text" id="f_name" placeholder="مثال: أحمد بلعيد"></div>
+          <div class="field"><label>تاريخ الميلاد</label><input type="date" id="f_dob"></div>
+          <div class="field"><label>الوزن (كغ)</label><input type="number" id="f_weight" placeholder="مثال: 45"></div>
+          <div class="field"><label>الفئة العمرية</label>
+            <select id="f_category"><option>أشبال</option><option>أصاغر</option><option>ناشئين</option><option>أكابر</option></select>
+          </div>
+          <div class="field"><label>الحزام الحالي</label>
+            <select id="f_belt"><option>أبيض</option><option>أصفر</option><option>برتقالي</option><option>أخضر</option><option>أزرق</option><option>بني</option><option>أسود</option></select>
+          </div>
+          <div class="field"><label>رقم هاتف الولي</label><input type="tel" id="f_phone" placeholder="0555 12 34 56"></div>
+          <div class="field form-grid full"><label>ملاحظة الملف الطبي</label><input type="text" id="f_medical" placeholder="مثال: شهادة عدم مانع صالحة إلى 2027"></div>
         </div>
+        <div style="margin-top:16px; display:flex; gap:10px;">
+          <button class="btn-primary" id="saveAthleteBtn">حفظ الرياضي</button>
+          <button class="btn-ghost" id="cancelFormBtn">إلغاء</button>
+        </div>
+      </div>
+    </section>
 
-        <label>الاسم الكامل</label>
-        <input type="text" id="f_name" placeholder="مثال: ياسين بلقاسمي" required>
+    <section id="subscriptions" style="display:none">
+      <div class="panel">
+        <h2>حالة الاشتراكات <span class="eyebrow" id="subMonthLabel"></span></h2>
+        <table><thead><tr><th>الرياضي</th><th>الاشتراك الشهري (دج)</th><th>الحالة</th><th></th></tr></thead>
+        <tbody id="subTableBody"></tbody></table>
+        <div class="empty" id="subEmpty" style="display:none">لا يوجد رياضيون مسجلون بعد</div>
+      </div>
+    </section>
 
-        <div class="row2">
-          <div><label>تاريخ الميلاد</label><input type="date" id="f_dob" required></div>
-          <div>
-            <label>الفئة العمرية</label>
-            <select id="f_category">
-              <option>براعم</option><option>أشبال</option><option>أصاغر</option><option>أواسط</option><option>أكابر</option>
-            </select>
+    <section id="attendance" style="display:none">
+      <div class="panel">
+        <h2>تسجيل الحضور <span class="eyebrow" id="attDateLabel"></span></h2>
+        <div id="attList"></div>
+        <div class="empty" id="attEmpty" style="display:none">لا يوجد رياضيون مسجلون بعد</div>
+      </div>
+    </section>
+
+    <section id="belts" style="display:none">
+      <div class="panel">
+        <h2>إضافة نتيجة امتحان</h2>
+        <div class="form-grid">
+          <div class="field"><label>الرياضي</label><select id="ex_athlete"></select></div>
+          <div class="field"><label>تاريخ الامتحان</label><input type="date" id="ex_date"></div>
+          <div class="field"><label>الحزام المختبر</label>
+            <select id="ex_belt"><option>أصفر</option><option>برتقالي</option><option>أخضر</option><option>أزرق</option><option>بني</option><option>أسود</option></select>
+          </div>
+          <div class="field"><label>النتيجة</label><select id="ex_result"><option>ناجح</option><option>راسب</option></select></div>
+          <div class="field"><label>موعد الامتحان القادم</label><input type="date" id="ex_next"></div>
+        </div>
+        <button class="btn-primary" style="margin-top:14px" id="saveExamBtn">حفظ النتيجة</button>
+      </div>
+      <div class="panel">
+        <h2>سجل الامتحانات</h2>
+        <table><thead><tr><th>الرياضي</th><th>التاريخ</th><th>الحزام</th><th>النتيجة</th><th>الامتحان القادم</th><th></th></tr></thead>
+        <tbody id="examTableBody"></tbody></table>
+        <div class="empty" id="examEmpty" style="display:none">لا يوجد سجل امتحانات بعد</div>
+      </div>
+    </section>
+
+    <section id="competitions" style="display:none">
+      <div class="panel">
+        <h2>إضافة مشاركة</h2>
+        <div class="form-grid">
+          <div class="field"><label>الرياضي</label><select id="cp_athlete"></select></div>
+          <div class="field"><label>اسم البطولة</label><input type="text" id="cp_name" placeholder="مثال: بطولة ولاية سوق أهراس"></div>
+          <div class="field"><label>التاريخ</label><input type="date" id="cp_date"></div>
+          <div class="field"><label>النتيجة</label>
+            <select id="cp_result"><option>🥇 ذهبية</option><option>🥈 فضية</option><option>🥉 برونزية</option><option>بدون ميدالية</option></select>
           </div>
         </div>
-
-        <label>الرياضة</label>
-        <select id="f_sport">
-          <option>كرة القدم</option><option>كرة السلة</option><option>كرة اليد</option><option>الكرة الطائرة</option>
-          <option>ألعاب القوى</option><option>السباحة</option><option>الجودو</option><option>الكاراتيه</option>
-          <option>الملاكمة</option><option>تنس الطاولة</option><option>أخرى</option>
-        </select>
-
-        <label>هاتف الاتصال (اللاعب أو ولي الأمر)</label>
-        <input type="tel" id="f_phone" placeholder="0555 12 34 56">
-
-        <label class="checkline" style="margin-top:16px;">
-          <input type="checkbox" id="f_medical"> الشهادة الطبية متوفرة
-        </label>
-
-        <button type="submit" class="btn" id="submitBtn">تسجيل الرياضي</button>
-      </form>
-    </section>
-
-    <section>
-      <div class="toolbar">
-        <input class="search" id="searchBox" type="text" placeholder="ابحث بالاسم...">
-        <div class="chips" id="sportChips"></div>
+        <button class="btn-primary" style="margin-top:14px" id="saveCompBtn">حفظ المشاركة</button>
       </div>
-      <div class="grid" id="rosterGrid"></div>
+      <div class="panel">
+        <h2>سجل المشاركات</h2>
+        <table><thead><tr><th>الرياضي</th><th>البطولة</th><th>التاريخ</th><th>النتيجة</th></tr></thead>
+        <tbody id="compTableBody"></tbody></table>
+        <div class="empty" id="compEmpty" style="display:none">لا يوجد سجل مشاركات بعد</div>
+      </div>
     </section>
+
+    <section id="notifications" style="display:none">
+      <div class="panel">
+        <h2>إرسال إشعار جديد</h2>
+        <div class="field"><label>نوع الإشعار</label>
+          <select id="nt_type"><option>إعلان عام لجميع الأولياء</option><option>تغيير موعد التدريب</option><option>إعلان عن بطولة</option></select>
+        </div>
+        <div class="field" style="margin-top:12px"><label>نص الإشعار</label><textarea rows="3" id="nt_text" placeholder="اكتب رسالتك هنا..."></textarea></div>
+        <button class="btn-primary" style="margin-top:12px" id="sendNotifBtn">إرسال للجميع</button>
+      </div>
+      <div class="panel">
+        <h2>الإشعارات المرسلة</h2>
+        <div id="notifList"></div>
+        <div class="empty" id="notifEmpty" style="display:none">لا يوجد إشعارات بعد</div>
+      </div>
+    </section>
+
+    <section id="documents" style="display:none">
+      <div class="doc-grid">
+        <div class="doc-card"><div class="doc-icon">🪪</div><div class="doc-title">بطاقة الرياضي</div><button class="btn-ghost" onclick="alert('توليد بطاقة الرياضي PDF — سيُنفَّذ في النسخة الكاملة')">استخراج PDF</button></div>
+        <div class="doc-card"><div class="doc-icon">🧾</div><div class="doc-title">وصل الاشتراك</div><button class="btn-ghost" onclick="alert('توليد وصل الاشتراك PDF — سيُنفَّذ في النسخة الكاملة')">استخراج PDF</button></div>
+        <div class="doc-card"><div class="doc-icon">📜</div><div class="doc-title">شهادة انخراط</div><button class="btn-ghost" onclick="alert('توليد شهادة الانخراط PDF — سيُنفَّذ في النسخة الكاملة')">استخراج PDF</button></div>
+        <div class="doc-card"><div class="doc-icon">📝</div><div class="doc-title">استمارة التسجيل</div><button class="btn-ghost" onclick="alert('توليد استمارة التسجيل PDF — سيُنفَّذ في النسخة الكاملة')">استخراج PDF</button></div>
+      </div>
+    </section>
+
   </div>
 </div>
+<div class="toast" id="toast"></div>
 
 <script>
-/* ============ shared cloud storage (jsonblob) ============ */
-const BLOB_ID = "019f6796-8f32-74eb-802d-2c16170e41a0";
-const API_URL = "https://jsonblob.com/api/jsonBlob/" + BLOB_ID;
+const beltColors = {'أبيض':'#f4f1e6','أصفر':'#e0b400','برتقالي':'#d9772e','أخضر':'#3c6e47','أزرق':'#2a5f8a','بني':'#6b4a2f','أسود':'#141414'};
+const MONTHLY_FEE = 1500;
 
-const DEFAULT_STATE = {
-  clubName: "نادي الرجاء الرياضي سوق أهراس",
-  clubTagline: "فخر سوق أهراس منذ التأسيس",
-  athletes: [],
-  achievements: [],
-  news: [],
-  contact: {}
-};
+let state = { athletes:[], subscriptions:[], attendance:[], beltExams:[], competitions:[], notifications:[] };
+const todayISO = new Date().toISOString().slice(0,10);
+const currentMonth = todayISO.slice(0,7);
 
-let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
-let saveTimer = null;
-
-function setSyncStatus(mode){
-  const dot = document.getElementById('syncDot');
-  const txt = document.getElementById('syncText');
-  dot.className = 'sync-dot' + (mode==='syncing' ? ' syncing' : mode==='err' ? ' err' : '');
-  txt.textContent = mode==='syncing' ? 'جارٍ الحفظ...' : mode==='err' ? 'تعذر الاتصال بالتخزين المشترك — تحقق من الإنترنت' : 'متصل بالتخزين المشترك';
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
 }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
-async function loadState(){
-  setSyncStatus('syncing');
-  try{
-    const res = await fetch(API_URL, {headers:{'Accept':'application/json'}});
-    if(!res.ok) throw new Error('bad status');
-    const data = await res.json();
-    state = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), data);
-    if(!Array.isArray(state.athletes)) state.athletes = [];
-    if(!Array.isArray(state.achievements)) state.achievements = [];
-    if(!Array.isArray(state.news)) state.news = [];
-    if(!state.contact || typeof state.contact !== 'object') state.contact = {};
-    setSyncStatus('ok');
-  }catch(e){
-    console.error('تعذر تحميل البيانات المشتركة', e);
-    setSyncStatus('err');
-  }
-  applyStateToUI();
-}
-
-function mergeById(remoteList, localList){
-  remoteList = Array.isArray(remoteList) ? remoteList : [];
-  localList = Array.isArray(localList) ? localList : [];
-  const byId = new Map();
-  remoteList.forEach(item => byId.set(item.id, item));
-  localList.forEach(item => byId.set(item.id, item)); // local wins on conflict (most recent edit on this device)
-  return Array.from(byId.values()).sort((a,b) => (b.id||0) - (a.id||0));
-}
-
-async function persistState(){
-  setSyncStatus('syncing');
-  try{
-    // 1) fetch the latest shared copy first, so we don't blindly overwrite
-    // changes made from another device in the meantime.
-    let remote = {};
+async function loadAll(){
+  const keys = ['athletes','subscriptions','attendance','beltExams','competitions','notifications'];
+  for(const k of keys){
     try{
-      const getRes = await fetch(API_URL, {headers:{'Accept':'application/json'}});
-      if(getRes.ok) remote = await getRes.json();
-    }catch(e){ /* if this fails we just proceed with local state only */ }
-
-    // 2) merge list-type data by id (union), local edits take priority on conflict
-    const merged = {
-      clubName: state.clubName,
-      clubTagline: state.clubTagline,
-      contact: state.contact,
-      athletes: mergeById(remote.athletes, state.athletes),
-      achievements: mergeById(remote.achievements, state.achievements),
-      news: mergeById(remote.news, state.news)
-    };
-    state = merged;
-
-    // 3) push the merged result
-    const res = await fetch(API_URL, {
-      method: 'PUT',
-      headers: {'Content-Type':'application/json','Accept':'application/json'},
-      body: JSON.stringify(state)
-    });
-    if(!res.ok) throw new Error('bad status');
-    setSyncStatus('ok');
-    // reflect any merged-in items (e.g. an athlete added from another device) in this view too
-    applyStateToUI();
-  }catch(e){
-    console.error('تعذر حفظ البيانات المشتركة', e);
-    setSyncStatus('err');
+      const res = await window.storage.get(k, true);
+      state[k] = res ? JSON.parse(res.value) : [];
+    }catch(e){ state[k] = []; }
   }
 }
-
-function saveState(){
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(persistState, 400);
+async function save(key){
+  try{
+    await window.storage.set(key, JSON.stringify(state[key]), true);
+  }catch(e){ console.error('storage error', e); toast('خطأ في الحفظ'); }
 }
 
-function applyStateToUI(){
-  document.getElementById('clubName').value = state.clubName;
-  document.getElementById('clubTagline').value = state.clubTagline;
-  document.getElementById('heroName').textContent = state.clubName;
-  document.getElementById('heroTag').textContent = state.clubTagline;
-  document.getElementById('c_phone').value = state.contact.phone || '';
-  document.getElementById('c_email').value = state.contact.email || '';
-  document.getElementById('c_address').value = state.contact.address || '';
-  document.getElementById('c_facebook').value = state.contact.facebook || '';
-  renderAchievements(); renderNews(); buildChips(); renderRoster();
+function initials(name){ return name.trim().split(' ')[0][0]; }
+
+function athleteOptionsHTML(){
+  return state.athletes.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
 }
 
-/* ---------- navigation ---------- */
-document.querySelectorAll('nav button').forEach(btn=>{
-  btn.onclick = ()=>{
-    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.getElementById('page-'+btn.dataset.page).classList.add('active');
-  };
-});
-document.querySelectorAll('.add-toggle').forEach(btn=>{
-  btn.onclick = ()=> document.getElementById(btn.dataset.toggle).classList.toggle('show');
-});
-
-/* ---------- helpers ---------- */
-const SPORTS = ["كرة القدم","كرة السلة","كرة اليد","الكرة الطائرة","ألعاب القوى","السباحة","الجودو","الكاراتيه","الملاكمة","تنس الطاولة","أخرى"];
-const SPORT_COLORS = {"كرة القدم":"#d4af37","كرة السلة":"#c98a3f","كرة اليد":"#b5675d","الكرة الطائرة":"#8a9bb0","ألعاب القوى":"#e3c05a","السباحة":"#6fa3a6","الجودو":"#a56a63","الكاراتيه":"#9a8ab5","الملاكمة":"#8a7431","تنس الطاولة":"#8fae8f","أخرى":"#9a9385"};
-let activeSport = "الكل";
-let pendingPhoto = null;
-
-function toArabicDigits(str){
-  const map = {'0':'٠','1':'١','2':'٢','3':'٣','4':'٤','5':'٥','6':'٦','7':'٧','8':'٨','9':'٩'};
-  return String(str).replace(/[0-9]/g, d => map[d]);
-}
-function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
-function calcAge(dob){
-  if(!dob) return '—';
-  const b=new Date(dob), t=new Date();
-  let age=t.getFullYear()-b.getFullYear();
-  const md=t.getMonth()-b.getMonth();
-  if(md<0||(md===0&&t.getDate()<b.getDate())) age--;
-  return age;
-}
-function initials(name){
-  const parts=name.trim().split(/\s+/);
-  return parts.slice(0,2).map(p=>p[0]).join('');
-}
-
-/* ---------- club identity ---------- */
-document.getElementById('clubName').addEventListener('change', e=>{
-  state.clubName = e.target.value;
-  document.getElementById('heroName').textContent = e.target.value;
-  saveState();
-});
-document.getElementById('clubTagline').addEventListener('change', e=>{
-  state.clubTagline = e.target.value;
-  document.getElementById('heroTag').textContent = e.target.value;
-  saveState();
-});
-
-/* ---------- achievements ---------- */
-function addAchievement(){
-  const title=document.getElementById('achv_title').value.trim();
-  const year=document.getElementById('achv_year').value.trim();
-  if(!title) return;
-  state.achievements.unshift({id:Date.now(), title, year});
-  document.getElementById('achv_title').value='';
-  document.getElementById('achv_year').value='';
-  renderAchievements();
-  saveState();
-}
-function renderAchievements(){
-  const list=document.getElementById('achvList');
-  if(state.achievements.length===0){ list.innerHTML='<li class="achv-item" style="justify-content:center;color:var(--chalk-dim)">لا توجد إنجازات مضافة بعد</li>'; return; }
-  list.innerHTML = state.achievements.map(a=>`
-    <li class="achv-item">
-      <div class="txt">🏆 ${escapeHtml(a.title)} ${a.year?`<span class="yr">${toArabicDigits(a.year)}</span>`:''}</div>
-      <button class="del-x" onclick="delAchievement(${a.id})">✕</button>
-    </li>`).join('');
-}
-function delAchievement(id){ state.achievements=state.achievements.filter(a=>a.id!==id); renderAchievements(); saveState(); }
-
-/* ---------- news ---------- */
-function addNews(){
-  const title=document.getElementById('news_title').value.trim();
-  const content=document.getElementById('news_content').value.trim();
-  if(!title) return;
-  state.news.unshift({id:Date.now(), title, content, date:new Date().toISOString()});
-  document.getElementById('news_title').value='';
-  document.getElementById('news_content').value='';
-  renderNews();
-  saveState();
-}
-function renderNews(){
-  const grid=document.getElementById('newsGrid');
-  if(state.news.length===0){ grid.innerHTML='<div class="empty" style="grid-column:1/-1"><span class="big">📰</span>لا توجد أخبار منشورة بعد</div>'; return; }
-  grid.innerHTML = state.news.map(n=>`
-    <div class="news-card">
-      <div class="nd">${new Date(n.date).toLocaleDateString('ar-DZ')} · <button class="del-x" onclick="delNews(${n.id})" style="margin-inline-start:8px">حذف</button></div>
-      <h3>${escapeHtml(n.title)}</h3>
-      <p>${escapeHtml(n.content)}</p>
-    </div>`).join('');
-}
-function delNews(id){ state.news=state.news.filter(n=>n.id!==id); renderNews(); saveState(); }
-
-/* ---------- contact ---------- */
-['c_phone','c_email','c_address','c_facebook'].forEach(id=>{
-  document.getElementById(id).addEventListener('change', ()=>{
-    state.contact = {
-      phone: document.getElementById('c_phone').value.trim(),
-      email: document.getElementById('c_email').value.trim(),
-      address: document.getElementById('c_address').value.trim(),
-      facebook: document.getElementById('c_facebook').value.trim()
-    };
-    saveState();
-  });
-});
-
-/* ---------- photo upload ---------- */
-document.getElementById('f_photo').addEventListener('change', (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev)=>{
-    const img = new Image();
-    img.onload = ()=>{
-      const size = 140;
-      const canvas = document.createElement('canvas');
-      canvas.width = size; canvas.height = size;
-      const ctx = canvas.getContext('2d');
-      const scale = Math.max(size/img.width, size/img.height);
-      const w = img.width*scale, h = img.height*scale;
-      ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
-      pendingPhoto = canvas.toDataURL('image/jpeg', 0.6);
-      document.getElementById('photoPreview').innerHTML = `<img src="${pendingPhoto}">`;
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-});
-
-/* ---------- roster ---------- */
-function buildChips(){
-  const wrap=document.getElementById('sportChips');
-  const counts={};
-  state.athletes.forEach(a=>counts[a.sport]=(counts[a.sport]||0)+1);
-  const chipsData=["الكل", ...SPORTS.filter(s=>counts[s])];
-  wrap.innerHTML="";
-  chipsData.forEach(s=>{
-    const c=document.createElement('div');
-    c.className='chip'+(s===activeSport?' active':'');
-    c.textContent = s==="الكل" ? `الكل (${state.athletes.length})` : `${s} (${counts[s]})`;
-    c.onclick=()=>{ activeSport=s; buildChips(); renderRoster(); };
-    wrap.appendChild(c);
-  });
-}
-function renderRoster(){
-  const grid=document.getElementById('rosterGrid');
-  const q=document.getElementById('searchBox').value.trim();
-  let list=state.athletes.filter(a=>a.name.includes(q));
-  if(activeSport!=="الكل") list=list.filter(a=>a.sport===activeSport);
-
-  document.getElementById('statsBar').innerHTML = `
-    <div class="stat"><span class="num">${toArabicDigits(state.athletes.length)}</span><span class="lbl">مسجَّل</span></div>
-    <div class="stat"><span class="num">${toArabicDigits(new Set(state.athletes.map(a=>a.sport)).size)}</span><span class="lbl">رياضات</span></div>
-    <div class="stat"><span class="num">${toArabicDigits(state.athletes.filter(a=>a.medical).length)}</span><span class="lbl">شهادة طبية</span></div>`;
-
-  if(list.length===0){ grid.innerHTML='<div class="empty"><span class="big">🛡️</span>لا يوجد رياضيون بعد — ابدأ بتسجيل أول لاعب من النموذج.</div>'; return; }
-
+// ---------- ATHLETES ----------
+function renderAthletes(){
+  const q = document.getElementById('searchInput').value.trim();
+  const list = state.athletes.filter(a=>a.name.includes(q));
+  const grid = document.getElementById('athleteGrid');
+  if(list.length===0){ grid.innerHTML = '<div class="empty">لا يوجد رياضيون بعد. اضغط "تسجيل رياضي جديد" للبدء.</div>'; return; }
   grid.innerHTML = list.map(a=>{
-    const color = SPORT_COLORS[a.sport]||'#9a9385';
-    const avatarInner = a.photo ? `<img src="${a.photo}">` : initials(a.name);
+    const paid = isPaidThisMonth(a.id);
     return `
-    <div class="card">
-      <button class="del-btn" data-id="${a.id}" title="حذف">✕</button>
-      <div class="avatar">${avatarInner}</div>
-      <div class="card-body">
-        <div class="card-name">${escapeHtml(a.name)}</div>
-        <div class="card-meta">
-          العمر: ${toArabicDigits(calcAge(a.dob))} سنة — ${a.category}<br>
-          ${a.phone ? '📞 '+toArabicDigits(a.phone) : 'بدون رقم هاتف'}<br>
-          <span class="${a.medical?'med-ok':'med-no'}">${a.medical?'✓ الشهادة الطبية متوفرة':'⚠ الشهادة الطبية غير متوفرة'}</span>
-        </div>
-        <span class="tag" style="background:${color}">${a.sport}</span>
+    <div class="athlete-card">
+      <span class="fee-tag ${paid?'paid':'unpaid'}">${paid?'مدفوع':'غير مدفوع'}</span>
+      <div class="athlete-top">
+        <div class="avatar">${initials(a.name)}</div>
+        <div><div class="athlete-name">${a.name}</div><div class="athlete-meta">${a.weight||'—'}kg · ${a.category||'—'}</div></div>
+      </div>
+      <div class="athlete-meta" style="margin-bottom:4px">الحزام: ${a.belt} · هاتف الولي: ${a.guardianPhone||'—'}</div>
+      <div class="belt-strip" style="background:${beltColors[a.belt]}"></div>
+      <div class="card-actions">
+        <button class="btn-ghost" onclick="editAthlete('${a.id}')">تعديل</button>
+        <button class="btn-danger" onclick="deleteAthlete('${a.id}')">حذف</button>
       </div>
     </div>`;
   }).join('');
-
-  grid.querySelectorAll('.del-btn').forEach(btn=>{
-    btn.onclick=()=>{
-      state.athletes = state.athletes.filter(a=>String(a.id)!==btn.dataset.id);
-      buildChips(); renderRoster(); saveState();
-    };
-  });
 }
 
-document.getElementById('regForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const name=document.getElementById('f_name').value.trim();
-  const dob=document.getElementById('f_dob').value;
-  const category=document.getElementById('f_category').value;
-  const sport=document.getElementById('f_sport').value;
-  const phone=document.getElementById('f_phone').value.trim();
-  const medical=document.getElementById('f_medical').checked;
-  if(!name||!dob) return;
+let editingId = null;
+document.getElementById('showFormBtn').addEventListener('click', ()=>{
+  editingId = null;
+  document.getElementById('regFormTitle').textContent = 'استمارة تسجيل رياضي جديد';
+  ['f_name','f_dob','f_weight','f_phone','f_medical'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f_category').selectedIndex = 0;
+  document.getElementById('f_belt').selectedIndex = 0;
+  document.getElementById('regForm').style.display = 'block';
+  document.getElementById('regForm').scrollIntoView({behavior:'smooth'});
+});
+document.getElementById('cancelFormBtn').addEventListener('click', ()=>{
+  document.getElementById('regForm').style.display = 'none';
+});
+document.getElementById('saveAthleteBtn').addEventListener('click', async ()=>{
+  const name = document.getElementById('f_name').value.trim();
+  if(!name){ toast('الرجاء إدخال اسم الرياضي'); return; }
+  const data = {
+    name,
+    dob: document.getElementById('f_dob').value,
+    weight: document.getElementById('f_weight').value,
+    category: document.getElementById('f_category').value,
+    belt: document.getElementById('f_belt').value,
+    guardianPhone: document.getElementById('f_phone').value,
+    medical: document.getElementById('f_medical').value,
+  };
+  if(editingId){
+    const idx = state.athletes.findIndex(a=>a.id===editingId);
+    state.athletes[idx] = {...state.athletes[idx], ...data};
+  } else {
+    state.athletes.push({id: uid(), ...data});
+  }
+  await save('athletes');
+  document.getElementById('regForm').style.display = 'none';
+  renderAthletes(); renderDashboard(); renderSubscriptions(); renderAttendance(); refreshAthleteSelects();
+  toast('تم حفظ الرياضي');
+});
+window.editAthlete = function(id){
+  const a = state.athletes.find(x=>x.id===id);
+  if(!a) return;
+  editingId = id;
+  document.getElementById('regFormTitle').textContent = 'تعديل بيانات الرياضي';
+  document.getElementById('f_name').value = a.name||'';
+  document.getElementById('f_dob').value = a.dob||'';
+  document.getElementById('f_weight').value = a.weight||'';
+  document.getElementById('f_category').value = a.category||'أشبال';
+  document.getElementById('f_belt').value = a.belt||'أبيض';
+  document.getElementById('f_phone').value = a.guardianPhone||'';
+  document.getElementById('f_medical').value = a.medical||'';
+  document.getElementById('regForm').style.display = 'block';
+  document.getElementById('regForm').scrollIntoView({behavior:'smooth'});
+};
+window.deleteAthlete = async function(id){
+  if(!confirm('هل تريد حذف هذا الرياضي؟')) return;
+  state.athletes = state.athletes.filter(a=>a.id!==id);
+  await save('athletes');
+  renderAthletes(); renderDashboard(); renderSubscriptions(); renderAttendance(); refreshAthleteSelects();
+  toast('تم الحذف');
+};
+document.getElementById('searchInput').addEventListener('input', renderAthletes);
 
-  state.athletes.push({
-    id: Date.now(), name, dob, category, sport, phone, medical,
-    photo: pendingPhoto || null,
-    registeredAt: new Date().toISOString()
+// ---------- SUBSCRIPTIONS ----------
+function isPaidThisMonth(athleteId){
+  return state.subscriptions.some(s=>s.athleteId===athleteId && s.month===currentMonth && s.status==='مدفوع');
+}
+function renderSubscriptions(){
+  document.getElementById('subMonthLabel').textContent = currentMonth;
+  const body = document.getElementById('subTableBody');
+  document.getElementById('subEmpty').style.display = state.athletes.length? 'none':'block';
+  body.innerHTML = state.athletes.map(a=>{
+    const paid = isPaidThisMonth(a.id);
+    return `<tr>
+      <td>${a.name}</td>
+      <td>${MONTHLY_FEE} دج</td>
+      <td><span class="status-pill ${paid?'paid':'unpaid'}">${paid?'مدفوع':'غير مدفوع'}</span></td>
+      <td>${paid
+        ? `<button class="btn-ghost" onclick="togglePay('${a.id}', false)">إلغاء الدفع</button>`
+        : `<button class="btn-primary" onclick="togglePay('${a.id}', true)">تسجيل الدفع</button>`}</td>
+    </tr>`;
+  }).join('');
+}
+window.togglePay = async function(athleteId, markPaid){
+  let sub = state.subscriptions.find(s=>s.athleteId===athleteId && s.month===currentMonth);
+  if(!sub){
+    sub = {id:uid(), athleteId, month:currentMonth, amount:MONTHLY_FEE, status:'غير مدفوع', paidDate:null};
+    state.subscriptions.push(sub);
+  }
+  sub.status = markPaid ? 'مدفوع' : 'غير مدفوع';
+  sub.paidDate = markPaid ? todayISO : null;
+  await save('subscriptions');
+  renderSubscriptions(); renderDashboard(); renderAthletes();
+  toast(markPaid ? 'تم تسجيل الدفع' : 'تم إلغاء الدفع');
+};
+
+// ---------- ATTENDANCE ----------
+function renderAttendance(){
+  document.getElementById('attDateLabel').textContent = todayISO;
+  const list = document.getElementById('attList');
+  document.getElementById('attEmpty').style.display = state.athletes.length? 'none':'block';
+  list.innerHTML = state.athletes.map(a=>{
+    const rec = state.attendance.find(r=>r.athleteId===a.id && r.date===todayISO);
+    const present = rec ? rec.present : null;
+    return `<div class="belt-row">
+      <div class="belt-name">${a.name}</div>
+      <button class="btn-ghost" style="${present===true?'border-color:var(--tatami-light);color:var(--tatami-light);':''}" onclick="markAttendance('${a.id}', true)">حاضر</button>
+      <button class="btn-ghost" style="${present===false?'border-color:var(--danger);color:var(--danger);':''}" onclick="markAttendance('${a.id}', false)">غائب</button>
+    </div>`;
+  }).join('');
+}
+window.markAttendance = async function(athleteId, present){
+  let rec = state.attendance.find(r=>r.athleteId===athleteId && r.date===todayISO);
+  if(!rec){ rec = {id:uid(), athleteId, date:todayISO, present}; state.attendance.push(rec); }
+  else { rec.present = present; }
+  await save('attendance');
+  renderAttendance();
+  toast('تم تسجيل الحضور');
+};
+
+// ---------- BELT EXAMS ----------
+function refreshAthleteSelects(){
+  document.getElementById('ex_athlete').innerHTML = athleteOptionsHTML();
+  document.getElementById('cp_athlete').innerHTML = athleteOptionsHTML();
+}
+function athleteName(id){ const a = state.athletes.find(x=>x.id===id); return a? a.name : '—'; }
+function renderExams(){
+  const body = document.getElementById('examTableBody');
+  document.getElementById('examEmpty').style.display = state.beltExams.length? 'none':'block';
+  body.innerHTML = state.beltExams.slice().reverse().map(e=>`
+    <tr>
+      <td>${athleteName(e.athleteId)}</td><td>${e.date}</td>
+      <td><span class="belt-chip" style="background:${beltColors[e.belt]};color:${['أبيض','أصفر'].includes(e.belt)?'#1a1000':'#fff'}">${e.belt}</span></td>
+      <td><span class="status-pill ${e.result==='ناجح'?'paid':'unpaid'}">${e.result}</span></td>
+      <td>${e.next||'—'}</td>
+      <td><button class="btn-ghost" onclick="alert('توليد شهادة الحزام PDF — سيُنفَّذ في النسخة الكاملة')">🖨️ شهادة</button></td>
+    </tr>`).join('');
+}
+document.getElementById('saveExamBtn').addEventListener('click', async ()=>{
+  const athleteId = document.getElementById('ex_athlete').value;
+  if(!athleteId){ toast('سجّل رياضياً أولاً'); return; }
+  state.beltExams.push({
+    id: uid(), athleteId,
+    date: document.getElementById('ex_date').value || todayISO,
+    belt: document.getElementById('ex_belt').value,
+    result: document.getElementById('ex_result').value,
+    next: document.getElementById('ex_next').value,
   });
-  e.target.reset();
-  pendingPhoto = null;
-  document.getElementById('photoPreview').innerHTML = 'بدون صورة';
-  buildChips(); renderRoster();
-  saveState();
+  await save('beltExams');
+  renderExams();
+  toast('تم حفظ نتيجة الامتحان');
 });
 
-document.getElementById('searchBox').addEventListener('input', renderRoster);
+// ---------- COMPETITIONS ----------
+function renderCompetitions(){
+  const body = document.getElementById('compTableBody');
+  document.getElementById('compEmpty').style.display = state.competitions.length? 'none':'block';
+  body.innerHTML = state.competitions.slice().reverse().map(c=>`
+    <tr><td>${athleteName(c.athleteId)}</td><td>${c.name}</td><td>${c.date}</td><td>${c.result}</td></tr>`).join('');
+}
+document.getElementById('saveCompBtn').addEventListener('click', async ()=>{
+  const athleteId = document.getElementById('cp_athlete').value;
+  const name = document.getElementById('cp_name').value.trim();
+  if(!athleteId || !name){ toast('الرجاء تعبئة الرياضي واسم البطولة'); return; }
+  state.competitions.push({
+    id: uid(), athleteId, name,
+    date: document.getElementById('cp_date').value || todayISO,
+    result: document.getElementById('cp_result').value,
+  });
+  await save('competitions');
+  document.getElementById('cp_name').value='';
+  renderCompetitions();
+  toast('تم حفظ المشاركة');
+});
 
-loadState();
+// ---------- NOTIFICATIONS ----------
+function renderNotifications(){
+  const list = document.getElementById('notifList');
+  document.getElementById('notifEmpty').style.display = state.notifications.length? 'none':'block';
+  list.innerHTML = state.notifications.slice().reverse().map(n=>`
+    <div class="belt-row"><div class="belt-name">${n.text}</div><div class="belt-chip" style="background:rgba(201,162,39,0.16); color:var(--gold-light)">${n.type} · ${n.date}</div></div>`).join('');
+  renderDashNotifs();
+}
+function renderDashNotifs(){
+  const el = document.getElementById('dashNotifs');
+  const recent = state.notifications.slice().reverse().slice(0,3);
+  el.innerHTML = recent.length ? recent.map(n=>`<div class="belt-row"><div class="belt-name">${n.text}</div><div class="belt-chip" style="background:rgba(201,162,39,0.16); color:var(--gold-light)">${n.date}</div></div>`).join('')
+    : '<div class="empty">لا يوجد إشعارات بعد</div>';
+}
+document.getElementById('sendNotifBtn').addEventListener('click', async ()=>{
+  const text = document.getElementById('nt_text').value.trim();
+  if(!text){ toast('اكتب نص الإشعار'); return; }
+  state.notifications.push({id:uid(), type:document.getElementById('nt_type').value, text, date: todayISO});
+  await save('notifications');
+  document.getElementById('nt_text').value='';
+  renderNotifications();
+  toast('تم إرسال الإشعار');
+});
+
+// ---------- DASHBOARD ----------
+function renderDashboard(){
+  document.getElementById('statAthletes').textContent = state.athletes.length;
+  const paidCount = state.athletes.filter(a=>isPaidThisMonth(a.id)).length;
+  document.getElementById('statPaid').textContent = paidCount;
+  document.getElementById('statRevenue').textContent = (paidCount*MONTHLY_FEE).toLocaleString();
+  document.getElementById('statUnpaid').textContent = state.athletes.length - paidCount;
+  renderDashNotifs();
+}
+
+// ---------- TABS & ROLES ----------
+const allTabs = document.querySelectorAll('#tabsNav button');
+const allSections = ['dashboard','athletes','subscriptions','attendance','belts','competitions','notifications','documents'];
+function showTab(tab){
+  allTabs.forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  allSections.forEach(s=>document.getElementById(s).style.display = (s===tab?'block':'none'));
+}
+allTabs.forEach(btn=>btn.addEventListener('click', ()=>showTab(btn.dataset.tab)));
+function applyRole(role){
+  let firstVisible = null;
+  allTabs.forEach(b=>{
+    const roles = b.dataset.roles.split(',');
+    const visible = roles.includes(role);
+    b.classList.toggle('hidden-role', !visible);
+    if(visible && !firstVisible) firstVisible = b.dataset.tab;
+  });
+  showTab(firstVisible || 'dashboard');
+}
+document.getElementById('roleSelect').addEventListener('change', e=>applyRole(e.target.value));
+
+// ---------- INIT ----------
+(async function init(){
+  await loadAll();
+  refreshAthleteSelects();
+  renderAthletes(); renderSubscriptions(); renderAttendance();
+  renderExams(); renderCompetitions(); renderNotifications(); renderDashboard();
+  applyRole('president');
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+})();
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
+    });
+  }
 </script>
 </body>
 </html>
